@@ -205,13 +205,17 @@ function aggregate(events) {
   const userActivity = {};       // user -> Set(days)
   const latestStreak = {};       // user -> { day, streak }
   const themes = {};             // theme -> { starts:Set, solves, fails, scoreSum, n }
-  const D = day => perDay[day] ||= { users:new Set(), starters:new Set(), finishers:new Set(), solvers:new Set(), sharers:new Set(), scores:[], fails:0 };
+  const D = day => perDay[day] ||= { users:new Set(), visitors:new Set(), starters:new Set(), finishers:new Set(), solvers:new Set(), sharers:new Set(), scores:[], fails:0 };
 
   for (const e of events) {
     const d = D(e.day);
     const p = e.props || {};
-    d.users.add(e.user_id);
-    (userActivity[e.user_id] ||= new Set()).add(e.day);
+    if (e.event === "open") {
+      d.visitors.add(e.user_id);   // page loads: bots, previews, curious clicks — NOT players
+    } else {
+      d.users.add(e.user_id);      // a "player" actually interacted with a puzzle
+      (userActivity[e.user_id] ||= new Set()).add(e.day);
+    }
     if (e.event === "start") {
       d.starters.add(e.user_id);
       if (p.theme) ((themes[p.theme] ||= { starters:new Set(), solves:0, fails:0, scoreSum:0, n:0 }).starters).add(e.user_id + "|" + e.day);
@@ -271,7 +275,7 @@ function aggregate(events) {
     totals.solvers += d.solvers.size;
     totals.sharers += d.sharers.size;
   }
-  const opens = days.reduce((a, day) => a + perDay[day].users.size, 0);
+  const opens = days.reduce((a, day) => a + perDay[day].visitors.size, 0);
 
   const streakBuckets = { "1":0, "2":0, "3-6":0, "7-13":0, "14-29":0, "30+":0 };
   for (const [u, s] of Object.entries(latestStreak)) {
@@ -303,7 +307,7 @@ function kpiCards(agg) {
 
   const cards = [
     ["Players today", dau, dauPrev !== null ? (dau >= dauPrev ? `▲ ${dau-dauPrev} vs yesterday` : `▼ ${dauPrev-dau} vs yesterday`) : "", dau >= (dauPrev??0)],
-    ["Unique players (period)", agg.totals.users.size, "", true],
+    ["Unique players (period)", agg.totals.users.size, "played, not just visited", true],
     ["Solve rate", pct(solveRate), "of finished games", solveRate > 75],
     ["Avg guesses", avgGuess, "target: 3.2–3.8", true],
     ["Share rate", pct(shareRate), "of solvers — the viral engine", shareRate > 15],
@@ -324,13 +328,15 @@ function build(agg) {
   kpiCards(agg);
 
   const dau = days.map(d => agg.perDay[d].users.size);
+  const visitors = days.map(d => agg.perDay[d].visitors.size);
   const avg7 = dau.map((_, i) => {
     const w = dau.slice(Math.max(0, i-6), i+1);
     return +(w.reduce((a,b)=>a+b,0)/w.length).toFixed(1);
   });
   new Chart(dauChart, { type: "line", data: { labels, datasets: [
-    { label: "Daily players", data: dau, borderColor: C.accent, backgroundColor: "rgba(233,69,96,0.15)", fill: true, tension: .3, pointRadius: 0 },
-    { label: "7-day avg", data: avg7, borderColor: C.gold, borderDash: [6,4], tension: .3, pointRadius: 0 }
+    { label: "Players (started a puzzle)", data: dau, borderColor: C.accent, backgroundColor: "rgba(233,69,96,0.15)", fill: true, tension: .3, pointRadius: 0 },
+    { label: "Visitors (page loads)", data: visitors, borderColor: C.muted, borderDash: [3,3], tension: .3, pointRadius: 0 },
+    { label: "7-day avg players", data: avg7, borderColor: C.gold, borderDash: [6,4], tension: .3, pointRadius: 0 }
   ]}, options: { plugins: { legend: { display: true } }, scales: { y: { beginAtZero: true } } } });
 
   new Chart(funnelChart, { type: "bar", data: {
