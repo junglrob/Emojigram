@@ -1,0 +1,985 @@
+{
+  "version": 1,
+  "startDate": "2026-08-03",
+  "startRevealed": 2,
+  "themes": [
+    {
+      "day": "Mon",
+      "theme": "Movie Monday",
+      "icon": "🎬",
+      "color": "#e74c3c",
+      "puzzles": [
+        {
+          "emojis": [
+            "🚲",
+            "🌕",
+            "👽",
+            "☎️",
+            "🍬"
+          ],
+          "answer": "E.T.",
+          "diff": "Medium",
+          "accepted": [
+            "et",
+            "e t",
+            "extra terrestrial",
+            "the extra terrestrial",
+            "et the extra terrestrial"
+          ],
+          "fact": "The flying-bicycle silhouette became Amblin's studio logo. Reese's Pieces sales jumped 65% after release."
+        },
+        {
+          "emojis": [
+            "🏖️",
+            "🌊",
+            "🎶",
+            "🦈",
+            "🚤"
+          ],
+          "answer": "Jaws",
+          "diff": "Easy",
+          "accepted": [
+            "jaws"
+          ],
+          "fact": "The mechanical shark kept breaking, so Spielberg barely showed it — accidentally inventing modern suspense."
+        },
+        {
+          "emojis": [
+            "🌪️",
+            "👠",
+            "🌈",
+            "🦁",
+            "🧙"
+          ],
+          "answer": "The Wizard of Oz",
+          "diff": "Easy",
+          "accepted": [
+            "wizard of oz",
+            "the wizard of oz"
+          ],
+          "fact": "The ruby slippers were silver in the book — changed to show off Technicolor."
+        },
+        {
+          "emojis": [
+            "❄️",
+            "🚢",
+            "🎻",
+            "💑",
+            "🌊"
+          ],
+          "answer": "Titanic",
+          "diff": "Easy",
+          "accepted": [
+            "titanic"
+          ],
+          "fact": "The band really did keep playing as the ship sank — survivor accounts confirm it."
+        },
+        {
+          "emojis": [
+            "⌛",
+            "🚗",
+            "⚡",
+            "🎸",
+            "📸"
+          ],
+          "answer": "Back to the Future",
+          "diff": "Medium",
+          "accepted": [
+            "back to the future",
+            "bttf"
+          ],
+          "fact": "The DeLorean was chosen for its gullwing doors. Time travel requires exactly 88 mph and 1.21 gigawatts."
+        },
+        {
+          "emojis": [
+            "🦷",
+            "🌊",
+            "🐠",
+            "🔍",
+            "🐢"
+          ],
+          "answer": "Finding Nemo",
+          "diff": "Medium",
+          "accepted": [
+            "finding nemo",
+            "nemo"
+          ],
+          "fact": "P. Sherman, 42 Wallaby Way, Sydney. The dentist's office starts the whole plot — hence the tooth."
+        },
+        {
+          "emojis": [
+            "🌅",
+            "🐒",
+            "🦁",
+            "👑",
+            "🐗"
+          ],
+          "answer": "The Lion King",
+          "diff": "Medium",
+          "accepted": [
+            "lion king",
+            "the lion king"
+          ],
+          "fact": "The opening chant is real Zulu. Getting it at 2 means you saw Rafiki's sunrise before the lion."
+        },
+        {
+          "emojis": [
+            "🥩",
+            "🏃",
+            "🥊",
+            "🏆",
+            "🇺🇸"
+          ],
+          "answer": "Rocky",
+          "diff": "Hard",
+          "accepted": [
+            "rocky"
+          ],
+          "fact": "Stallone wrote the script in about three days. The museum steps run is now a Philadelphia tourist attraction."
+        }
+      ]
+    },
+    {
+      "day": "Tue",
+      "theme": "Tune Tuesday",
+      "icon": "🎵",
+      "color": "#9b59b6",
+      "puzzles": [
+        {
+          "emojis": [
+            "🏨",
+            "🌴",
+            "🕯️",
+            "🍷",
+            "🚪"
+          ],
+          "answer": "Hotel California",
+          "diff": "Medium",
+          "accepted": [
+            "hotel california",
+            "the hotel california"
+          ],
+          "fact": "\"You can check out any time you like, but you can never leave.\" The Eagles never explained the meaning — by design."
+        },
+        {
+          "emojis": [
+            "👩",
+            "🔫",
+            "🎭",
+            "⚡",
+            "👑"
+          ],
+          "answer": "Bohemian Rhapsody",
+          "diff": "Hard",
+          "accepted": [
+            "bohemian rhapsody"
+          ],
+          "fact": "\"Mama, just killed a man...\" — six minutes, no chorus, an opera section, and radio played it anyway. Crown = Queen."
+        },
+        {
+          "emojis": [
+            "💍",
+            "🔥",
+            "⬇️",
+            "⬇️",
+            "⬇️"
+          ],
+          "answer": "Ring of Fire",
+          "diff": "Medium",
+          "accepted": [
+            "ring of fire"
+          ],
+          "fact": "Written by June Carter about falling in love with Johnny Cash — 'down, down, down' is the reveal sequence."
+        },
+        {
+          "emojis": [
+            "1️⃣",
+            "7️⃣",
+            "💃",
+            "👑",
+            "🎶"
+          ],
+          "answer": "Dancing Queen",
+          "diff": "Medium",
+          "accepted": [
+            "dancing queen"
+          ],
+          "fact": "\"Young and sweet, only seventeen.\" ABBA's only US #1 hit. Getting it at 2 from the '17' is an elite move."
+        },
+        {
+          "emojis": [
+            "💛",
+            "🚢",
+            "🌊",
+            "🎶",
+            "🐙"
+          ],
+          "answer": "Yellow Submarine",
+          "diff": "Easy",
+          "accepted": [
+            "yellow submarine"
+          ],
+          "fact": "One of the few Beatles songs with Ringo on lead vocals. The octopus nods to his other sea song, Octopus's Garden."
+        },
+        {
+          "emojis": [
+            "🧟",
+            "🌕",
+            "🕺",
+            "😱",
+            "🐺"
+          ],
+          "answer": "Thriller",
+          "diff": "Easy",
+          "accepted": [
+            "thriller"
+          ],
+          "fact": "Still the best-selling album of all time. The 14-minute video premiered on MTV like a movie event."
+        },
+        {
+          "emojis": [
+            "😨",
+            "🗿",
+            "💃",
+            "🚪",
+            "💪"
+          ],
+          "answer": "I Will Survive",
+          "diff": "Hard",
+          "accepted": [
+            "i will survive"
+          ],
+          "fact": "\"At first I was afraid, I was petrified\" — hence the statue. Gloria Gaynor recorded it with a broken back."
+        },
+        {
+          "emojis": [
+            "🎶",
+            "🙌",
+            "🍬",
+            "👧",
+            "⚾"
+          ],
+          "answer": "Sweet Caroline",
+          "diff": "Medium",
+          "accepted": [
+            "sweet caroline"
+          ],
+          "fact": "\"So good! So good! So good!\" — the crowd chant isn't in the lyrics. Fenway Park plays it every 8th inning."
+        }
+      ]
+    },
+    {
+      "day": "Wed",
+      "theme": "World Wednesday",
+      "icon": "🌍",
+      "color": "#2980b9",
+      "puzzles": [
+        {
+          "emojis": [
+            "🦅",
+            "🌕",
+            "👣",
+            "🚀",
+            "🇺🇸"
+          ],
+          "answer": "The Moon Landing",
+          "diff": "Medium",
+          "accepted": [
+            "moon landing",
+            "the moon landing",
+            "apollo 11",
+            "apollo eleven",
+            "first moon landing"
+          ],
+          "fact": "\"The Eagle has landed\" — the lunar module was named Eagle. ~600 million people watched live."
+        },
+        {
+          "emojis": [
+            "🥐",
+            "🍷",
+            "💡",
+            "🗼",
+            "🇫🇷"
+          ],
+          "answer": "Paris",
+          "diff": "Easy",
+          "accepted": [
+            "paris"
+          ],
+          "fact": "💡 = the City of Light. The Eiffel Tower was meant to be temporary — critics called it a monstrosity."
+        },
+        {
+          "emojis": [
+            "🧱",
+            "⛰️",
+            "🐉",
+            "🚀",
+            "🇨🇳"
+          ],
+          "answer": "The Great Wall of China",
+          "diff": "Medium",
+          "accepted": [
+            "great wall",
+            "the great wall",
+            "great wall of china",
+            "the great wall of china"
+          ],
+          "fact": "Despite the legend (🚀), it is NOT visible from orbit with the naked eye — astronauts have confirmed it."
+        },
+        {
+          "emojis": [
+            "🏛️",
+            "🌋",
+            "🔥",
+            "🐕",
+            "🇮🇹"
+          ],
+          "answer": "Pompeii",
+          "diff": "Medium",
+          "accepted": [
+            "pompeii",
+            "pompei"
+          ],
+          "fact": "The famous plaster casts include a guard dog. The city was preserved under ash for ~1,700 years."
+        },
+        {
+          "emojis": [
+            "🐫",
+            "☀️",
+            "🔺",
+            "👑",
+            "🇪🇬"
+          ],
+          "answer": "The Pyramids",
+          "diff": "Easy",
+          "accepted": [
+            "pyramids",
+            "the pyramids",
+            "pyramids of giza",
+            "giza",
+            "great pyramid"
+          ],
+          "fact": "Cleopatra lived closer in time to the iPhone than to the construction of the Great Pyramid."
+        },
+        {
+          "emojis": [
+            "🌳",
+            "🌧️",
+            "🦜",
+            "🐍",
+            "🇧🇷"
+          ],
+          "answer": "The Amazon Rainforest",
+          "diff": "Medium",
+          "accepted": [
+            "amazon",
+            "the amazon",
+            "amazon rainforest",
+            "the amazon rainforest",
+            "amazon jungle"
+          ],
+          "fact": "The Amazon river discharges more water than the next seven largest rivers combined."
+        },
+        {
+          "emojis": [
+            "🔨",
+            "🧱",
+            "🕊️",
+            "🎉",
+            "🇩🇪"
+          ],
+          "answer": "The Berlin Wall",
+          "diff": "Medium",
+          "accepted": [
+            "berlin wall",
+            "the berlin wall",
+            "fall of the berlin wall"
+          ],
+          "fact": "It fell in 1989 partly because of a botched press conference — an official mistakenly said borders were open 'immediately'."
+        },
+        {
+          "emojis": [
+            "🚣",
+            "🎭",
+            "🌊",
+            "🏘️",
+            "🇮🇹"
+          ],
+          "answer": "Venice",
+          "diff": "Hard",
+          "accepted": [
+            "venice",
+            "venezia"
+          ],
+          "fact": "Built on millions of wooden piles driven into the lagoon — underwater, without oxygen, the wood petrifies instead of rotting."
+        }
+      ]
+    },
+    {
+      "day": "Thu",
+      "theme": "Throwback Thursday",
+      "icon": "📺",
+      "color": "#e67e22",
+      "puzzles": [
+        {
+          "emojis": [
+            "☕",
+            "🛋️",
+            "⛲",
+            "👫",
+            "👬"
+          ],
+          "answer": "Friends",
+          "diff": "Easy",
+          "accepted": [
+            "friends",
+            "friends tv show"
+          ],
+          "fact": "The fountain in the credits is on a Warner Bros. lot — the cast reportedly hated filming in it at 4am."
+        },
+        {
+          "emojis": [
+            "🚕",
+            "🏀",
+            "🤴",
+            "🔔",
+            "🏠"
+          ],
+          "answer": "The Fresh Prince of Bel-Air",
+          "diff": "Medium",
+          "accepted": [
+            "fresh prince",
+            "the fresh prince",
+            "fresh prince of bel air",
+            "the fresh prince of bel air"
+          ],
+          "fact": "🔔 = 'Bel'. Will Smith took the role partly to pay off an IRS tax debt."
+        },
+        {
+          "emojis": [
+            "👽",
+            "🕵️",
+            "🛸",
+            "❓",
+            "🔦"
+          ],
+          "answer": "The X-Files",
+          "diff": "Medium",
+          "accepted": [
+            "x files",
+            "the x files",
+            "xfiles"
+          ],
+          "fact": "\"The truth is out there.\" Scully is credited with inspiring a measurable rise in women entering science — the 'Scully Effect'."
+        },
+        {
+          "emojis": [
+            "🏖️",
+            "🏊",
+            "👙",
+            "🔴",
+            "🏃"
+          ],
+          "answer": "Baywatch",
+          "diff": "Medium",
+          "accepted": [
+            "baywatch"
+          ],
+          "fact": "At its peak it was the most-watched TV show on Earth — over a billion weekly viewers."
+        },
+        {
+          "emojis": [
+            "📎",
+            "💣",
+            "🔧",
+            "⏰",
+            "💥"
+          ],
+          "answer": "MacGyver",
+          "diff": "Medium",
+          "accepted": [
+            "macgyver",
+            "mcgyver"
+          ],
+          "fact": "The name became a verb: to MacGyver something is to fix it with whatever's lying around — ideally a paperclip."
+        },
+        {
+          "emojis": [
+            "🛋️",
+            "📺",
+            "💛",
+            "🍩",
+            "🍺"
+          ],
+          "answer": "The Simpsons",
+          "diff": "Easy",
+          "accepted": [
+            "simpsons",
+            "the simpsons"
+          ],
+          "fact": "The couch gag changes every episode. It's the longest-running scripted show in TV history."
+        },
+        {
+          "emojis": [
+            "🗣️",
+            "🚗",
+            "🔴",
+            "🤖",
+            "🕶️"
+          ],
+          "answer": "Knight Rider",
+          "diff": "Hard",
+          "accepted": [
+            "knight rider",
+            "knightrider"
+          ],
+          "fact": "KITT's red scanner light and voice made a car the real star. Hasselhoff came second."
+        },
+        {
+          "emojis": [
+            "📞",
+            "😎",
+            "🏫",
+            "🔔",
+            "👨‍🎓"
+          ],
+          "answer": "Saved by the Bell",
+          "diff": "Medium",
+          "accepted": [
+            "saved by the bell"
+          ],
+          "fact": "Zack Morris's brick cell phone was cutting-edge cool in 1989. The 🔔 is doing double duty in the title."
+        }
+      ]
+    },
+    {
+      "day": "Fri",
+      "theme": "Famous Friday",
+      "icon": "👑",
+      "color": "#f1c40f",
+      "puzzles": [
+        {
+          "emojis": [
+            "🦋",
+            "🐝",
+            "🥊",
+            "👑",
+            "🏆"
+          ],
+          "answer": "Muhammad Ali",
+          "diff": "Medium",
+          "accepted": [
+            "muhammad ali",
+            "muhammed ali",
+            "mohammed ali",
+            "mohamed ali",
+            "ali",
+            "cassius clay"
+          ],
+          "fact": "\"Float like a butterfly, sting like a bee.\" First fighter to win the heavyweight title three separate times."
+        },
+        {
+          "emojis": [
+            "🎻",
+            "👅",
+            "⚛️",
+            "🧠",
+            "💡"
+          ],
+          "answer": "Albert Einstein",
+          "diff": "Medium",
+          "accepted": [
+            "einstein",
+            "albert einstein"
+          ],
+          "fact": "The tongue photo was his 72nd birthday. He was offered the presidency of Israel and declined."
+        },
+        {
+          "emojis": [
+            "✍️",
+            "💀",
+            "🎭",
+            "📖",
+            "🇬🇧"
+          ],
+          "answer": "William Shakespeare",
+          "diff": "Medium",
+          "accepted": [
+            "shakespeare",
+            "william shakespeare"
+          ],
+          "fact": "💀 = 'Alas, poor Yorick.' He coined or popularized ~1,700 words, including 'eyeball' and 'swagger'."
+        },
+        {
+          "emojis": [
+            "👑",
+            "🐝",
+            "🎤",
+            "💍",
+            "🍋"
+          ],
+          "answer": "Beyoncé",
+          "diff": "Medium",
+          "accepted": [
+            "beyonce",
+            "beyonce knowles",
+            "queen bey"
+          ],
+          "fact": "Queen Bey, Single Ladies (💍), Lemonade (🍋) — three references in one puzzle. Most Grammy wins of any artist."
+        },
+        {
+          "emojis": [
+            "😏",
+            "🚁",
+            "🎨",
+            "✍️",
+            "🇮🇹"
+          ],
+          "answer": "Leonardo da Vinci",
+          "diff": "Hard",
+          "accepted": [
+            "da vinci",
+            "leonardo da vinci",
+            "leonardo",
+            "davinci"
+          ],
+          "fact": "😏 = the Mona Lisa smile. He sketched a helicopter ~400 years early and wrote his notes in mirror image."
+        },
+        {
+          "emojis": [
+            "💙",
+            "👞",
+            "🎸",
+            "🕺",
+            "👑"
+          ],
+          "answer": "Elvis Presley",
+          "diff": "Medium",
+          "accepted": [
+            "elvis",
+            "elvis presley",
+            "the king"
+          ],
+          "fact": "💙👞 = Blue Suede Shoes. The King never performed a concert outside North America."
+        },
+        {
+          "emojis": [
+            "💄",
+            "🐍",
+            "👑",
+            "📜",
+            "🇪🇬"
+          ],
+          "answer": "Cleopatra",
+          "diff": "Medium",
+          "accepted": [
+            "cleopatra"
+          ],
+          "fact": "She spoke ~9 languages and was ethnically Greek, not Egyptian — the last pharaoh of the Ptolemy dynasty."
+        },
+        {
+          "emojis": [
+            "🤐",
+            "🎩",
+            "🎥",
+            "👞",
+            "😂"
+          ],
+          "answer": "Charlie Chaplin",
+          "diff": "Hard",
+          "accepted": [
+            "chaplin",
+            "charlie chaplin",
+            "charley chaplin"
+          ],
+          "fact": "🤐 = silent films. Legend says he once entered a Chaplin look-alike contest and didn't win."
+        }
+      ]
+    },
+    {
+      "day": "Sat",
+      "theme": "Saying Saturday",
+      "icon": "💬",
+      "color": "#16a085",
+      "puzzles": [
+        {
+          "emojis": [
+            "1️⃣",
+            "🔵",
+            "🌕",
+            "⏳",
+            "✨"
+          ],
+          "answer": "Once in a Blue Moon",
+          "diff": "Medium",
+          "accepted": [
+            "once in a blue moon",
+            "blue moon"
+          ],
+          "fact": "A blue moon is the second full moon in one calendar month — roughly every 2.7 years. Hence: rarely."
+        },
+        {
+          "emojis": [
+            "🥫",
+            "⬇️",
+            "😱",
+            "🗣️",
+            "🤫"
+          ],
+          "answer": "Spill the Beans",
+          "diff": "Medium",
+          "accepted": [
+            "spill the beans",
+            "spilled the beans",
+            "spilling the beans"
+          ],
+          "fact": "Possibly from ancient Greece, where votes were cast with beans — knocking over the jar revealed the result early."
+        },
+        {
+          "emojis": [
+            "🦵",
+            "💥",
+            "🎭",
+            "🍀",
+            "👏"
+          ],
+          "answer": "Break a Leg",
+          "diff": "Medium",
+          "accepted": [
+            "break a leg"
+          ],
+          "fact": "Theater superstition: wishing 'good luck' invites bad luck, so actors wish the opposite."
+        },
+        {
+          "emojis": [
+            "🔪",
+            "🍰",
+            "😌",
+            "✅",
+            "👌"
+          ],
+          "answer": "Piece of Cake",
+          "diff": "Easy",
+          "accepted": [
+            "piece of cake",
+            "a piece of cake"
+          ],
+          "fact": "Likely from 1870s 'cakewalk' contests, where the prize for the best strut was literally a cake."
+        },
+        {
+          "emojis": [
+            "🌅",
+            "🐦",
+            "🐛",
+            "⏰",
+            "🏆"
+          ],
+          "answer": "The Early Bird Catches the Worm",
+          "diff": "Easy",
+          "accepted": [
+            "the early bird catches the worm",
+            "early bird catches the worm",
+            "the early bird gets the worm",
+            "early bird gets the worm",
+            "early bird"
+          ],
+          "fact": "First recorded in 1605 — older than most of the birds' current habitats."
+        },
+        {
+          "emojis": [
+            "🥛",
+            "⬇️",
+            "😢",
+            "🚫",
+            "🤷"
+          ],
+          "answer": "Don't Cry Over Spilled Milk",
+          "diff": "Easy",
+          "accepted": [
+            "dont cry over spilled milk",
+            "dont cry over spilt milk",
+            "no use crying over spilled milk",
+            "no use crying over spilt milk",
+            "crying over spilled milk",
+            "crying over spilt milk"
+          ],
+          "fact": "Traced to a 1659 proverb collection. British English spills 'spilt', American spills 'spilled' — both accepted here."
+        },
+        {
+          "emojis": [
+            "☔",
+            "🐱",
+            "🐶",
+            "⬇️",
+            "😱"
+          ],
+          "answer": "Raining Cats and Dogs",
+          "diff": "Medium",
+          "accepted": [
+            "raining cats and dogs",
+            "its raining cats and dogs",
+            "it is raining cats and dogs"
+          ],
+          "fact": "One theory: in 17th-century storms, debris and stray animals washed through streets — as if they'd fallen with the rain."
+        },
+        {
+          "emojis": [
+            "🤫",
+            "🛍️",
+            "🐱",
+            "😮",
+            "🗣️"
+          ],
+          "answer": "Let the Cat Out of the Bag",
+          "diff": "Medium",
+          "accepted": [
+            "let the cat out of the bag",
+            "cat out of the bag",
+            "the cat is out of the bag"
+          ],
+          "fact": "Possibly from market fraud: a piglet in the sack swapped for a worthless cat — revealed only when opened."
+        }
+      ]
+    },
+    {
+      "day": "Sun",
+      "theme": "Story Sunday",
+      "icon": "📚",
+      "color": "#8e6a3f",
+      "puzzles": [
+        {
+          "emojis": [
+            "🌾",
+            "🌳",
+            "🧱",
+            "🐺",
+            "🐷"
+          ],
+          "answer": "The Three Little Pigs",
+          "diff": "Medium",
+          "accepted": [
+            "three little pigs",
+            "the three little pigs",
+            "3 little pigs",
+            "the 3 little pigs"
+          ],
+          "fact": "Straw, sticks, brick — the materials ARE the plot. The tale predates the Disney short by a century."
+        },
+        {
+          "emojis": [
+            "🎶",
+            "🌊",
+            "🦵",
+            "🔱",
+            "🧜‍♀️"
+          ],
+          "answer": "The Little Mermaid",
+          "diff": "Medium",
+          "accepted": [
+            "little mermaid",
+            "the little mermaid"
+          ],
+          "fact": "In Andersen's 1837 original, every step on her new legs feels like walking on knives. Disney softened it a touch."
+        },
+        {
+          "emojis": [
+            "🐋",
+            "⚪",
+            "🚢",
+            "🦵",
+            "😡"
+          ],
+          "answer": "Moby Dick",
+          "diff": "Medium",
+          "accepted": [
+            "moby dick",
+            "mobydick"
+          ],
+          "fact": "A commercial flop in Melville's lifetime — he died believing it a failure. ⚪ = the white whale; 🦵 = Ahab's lost leg."
+        },
+        {
+          "emojis": [
+            "🕛",
+            "🎃",
+            "👠",
+            "💃",
+            "🤴"
+          ],
+          "answer": "Cinderella",
+          "diff": "Easy",
+          "accepted": [
+            "cinderella"
+          ],
+          "fact": "One theory says the glass slipper came from mistranslating French 'vair' (fur) as 'verre' (glass)."
+        },
+        {
+          "emojis": [
+            "🧺",
+            "👵",
+            "🔴",
+            "🐺",
+            "🦷"
+          ],
+          "answer": "Little Red Riding Hood",
+          "diff": "Medium",
+          "accepted": [
+            "little red riding hood",
+            "red riding hood"
+          ],
+          "fact": "🦷 = 'What big teeth you have!' Early versions had no huntsman — and no happy ending."
+        },
+        {
+          "emojis": [
+            "🐄",
+            "🌱",
+            "☁️",
+            "👹",
+            "🥚"
+          ],
+          "answer": "Jack and the Beanstalk",
+          "diff": "Hard",
+          "accepted": [
+            "jack and the beanstalk",
+            "jack and the bean stalk"
+          ],
+          "fact": "Cow traded for beans, giant above the clouds, golden egg. Solving at 2 from just cow + seed is elite."
+        },
+        {
+          "emojis": [
+            "👴",
+            "🔨",
+            "🎭",
+            "👃",
+            "🐋"
+          ],
+          "answer": "Pinocchio",
+          "diff": "Medium",
+          "accepted": [
+            "pinocchio",
+            "pinnochio",
+            "pinochio"
+          ],
+          "fact": "In Collodi's original serial, the puppet is far less lovable — the story was much darker before Disney."
+        },
+        {
+          "emojis": [
+            "😴",
+            "🏁",
+            "🐢",
+            "🐇",
+            "🏆"
+          ],
+          "answer": "The Tortoise and the Hare",
+          "diff": "Medium",
+          "accepted": [
+            "the tortoise and the hare",
+            "tortoise and the hare",
+            "tortoise and hare",
+            "the hare and the tortoise"
+          ],
+          "fact": "Aesop, ~2,600 years ago. 😴🏁 first — the nap at the race is the whole moral: slow and steady wins."
+        }
+      ]
+    }
+  ]
+}
