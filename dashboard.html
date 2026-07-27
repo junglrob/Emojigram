@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emojigram — Mission Control</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg1: #1a1a2e; --bg2: #16213e;
+    --panel: #1f2440; --panel-edge: #2b3158;
+    --ink: #e8eaf2; --muted: #8a90b0;
+    --accent: #e94560; --green: #2ecc71; --gold: #f1c40f; --blue: #3498db; --purple: #9b59b6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Segoe UI", system-ui, sans-serif;
+    background: linear-gradient(160deg, var(--bg1), var(--bg2));
+    min-height: 100vh;
+    color: var(--ink);
+    padding: 24px 16px 60px;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  h1 { font-size: 24px; letter-spacing: 1px; }
+  h1 span { color: var(--accent); }
+  .sub { color: var(--muted); font-size: 13px; margin: 4px 0 18px; }
+  .demo-banner {
+    background: rgba(241,196,15,0.12);
+    border: 1px solid rgba(241,196,15,0.4);
+    color: var(--gold);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    margin-bottom: 18px;
+    display: none;
+  }
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .kpi {
+    background: var(--panel);
+    border: 1px solid var(--panel-edge);
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+  .kpi .v { font-size: 22px; font-weight: 800; }
+  .kpi .l { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .kpi .d { font-size: 11px; margin-top: 2px; }
+  .up { color: var(--green); } .down { color: var(--accent); }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--panel-edge);
+    border-radius: 14px;
+    padding: 16px;
+  }
+  .panel h3 { font-size: 14px; margin-bottom: 2px; }
+  .panel .note { font-size: 11px; color: var(--muted); margin-bottom: 10px; }
+  .panel.wide { grid-column: 1 / -1; }
+  canvas { max-height: 260px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>EMOJI<span>GRAM</span> · Mission Control</h1>
+  <div class="sub" id="range"></div>
+  <div class="demo-banner" id="demoBanner">
+    ⚠️ <b>Demo mode</b> — showing simulated sample data. Connect Supabase in the CONFIG block at the top of this file (see analytics-setup.md) to see real numbers.
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="grid">
+    <div class="panel wide">
+      <h3>Daily players</h3>
+      <div class="note">Unique users opening the game per day, with 7-day average</div>
+      <canvas id="dauChart"></canvas>
+    </div>
+    <div class="panel">
+      <h3>The funnel</h3>
+      <div class="note">Whole period: opened → started guessing → finished → solved → shared</div>
+      <canvas id="funnelChart"></canvas>
+    </div>
+    <div class="panel">
+      <h3>Guesses needed to solve</h3>
+      <div class="note">Solved at 2 = elite · "Failed" includes give-ups</div>
+      <canvas id="guessChart"></canvas>
+    </div>
+    <div class="panel">
+      <h3>Share rate &amp; abandon rate</h3>
+      <div class="note">% of solvers who shared · % of starters who never finished</div>
+      <canvas id="shareChart"></canvas>
+    </div>
+    <div class="panel">
+      <h3>2-day churn</h3>
+      <div class="note">% of a day's players not seen again within the next 2 days (lower is better)</div>
+      <canvas id="churnChart"></canvas>
+    </div>
+    <div class="panel">
+      <h3>Streak distribution</h3>
+      <div class="note">Current streak length across all players — watch the 7+ buckets grow</div>
+      <canvas id="streakChart"></canvas>
+    </div>
+    <div class="panel">
+      <h3>Theme performance</h3>
+      <div class="note">Solve rate and avg guesses by weekday — spot your weakest day</div>
+      <canvas id="themeChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<script>
+// ====== CONFIG — same values as in the game file. Empty = demo mode ======
+const SUPABASE_URL = "https://qadqnrjgaurxkyojhjwu.supabase.co";
+const SUPABASE_KEY = "sb_publishable_r2DisNEjlnfSrMgLewhTYA_vZZd9ld2";
+const DAYS_SHOWN = 30;
+// =========================================================================
+
+const THEME_LABELS = { Mon:"🎬 Mon", Tue:"🎵 Tue", Wed:"🌍 Wed", Thu:"📺 Thu", Fri:"👑 Fri", Sat:"💬 Sat", Sun:"📚 Sun" };
+const C = { accent:"#e94560", green:"#2ecc71", gold:"#f1c40f", blue:"#3498db", purple:"#9b59b6", muted:"#8a90b0" };
+Chart.defaults.color = "#a8aecb";
+Chart.defaults.borderColor = "rgba(255,255,255,0.07)";
+Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+
+function dstr(d) {
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate()+n); return x; }
+
+// ---------- data source ----------
+async function fetchEvents() {
+  if (!SUPABASE_URL || !SUPABASE_KEY) {
+    document.getElementById("demoBanner").style.display = "block";
+    return simulate();
+  }
+  const since = dstr(addDays(new Date(), -(DAYS_SHOWN + 3)));
+  const rows = [];
+  let from = 0, page = 10000;
+  while (true) {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/events?select=user_id,event,props,day&day=gte.${since}&order=day.asc`, {
+      headers: { apikey: SUPABASE_KEY, Authorization: "Bearer " + SUPABASE_KEY, Range: `${from}-${from+page-1}` }
+    });
+    const batch = await r.json();
+    if (!Array.isArray(batch) || batch.length === 0) break;
+    rows.push(...batch);
+    if (batch.length < page) break;
+    from += page;
+  }
+  return rows;
+}
+
+// demo-mode simulator: plausible launch trajectory
+function simulate() {
+  const events = [];
+  const users = {};   // id -> { retP, streak, lastSolveDay }
+  let nextId = 1;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const N = 45;
+  for (let di = N; di >= 0; di--) {
+    const day = dstr(addDays(today, -di));
+    const t = N - di;
+    const newcomers = Math.max(2, Math.round((3 + t * 1.1) * (0.6 + Math.random()*0.8)));
+    for (let i = 0; i < newcomers; i++) users["u" + (nextId++)] = { retP: 0.35 + Math.random()*0.3, streak: 0, last: null };
+    for (const [id, u] of Object.entries(users)) {
+      const isNew = u.last === null && u.streak === 0;
+      const returns = isNew || Math.random() < (u.retP + Math.min(0.3, u.streak * 0.04));
+      if (!returns) continue;
+      events.push({ user_id: id, event: "open", props: {}, day });
+      const theme = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][new Date(day + "T12:00:00").getDay() === 0 ? 6 : new Date(day + "T12:00:00").getDay() - 1];
+      if (Math.random() < 0.9) {
+        events.push({ user_id: id, event: "start", props: { theme }, day });
+        if (Math.random() < 0.82) {
+          if (Math.random() < 0.86) {
+            const r = Math.random();
+            const score = r < 0.14 ? 2 : r < 0.50 ? 3 : r < 0.81 ? 4 : 5;
+            const yest = dstr(addDays(new Date(day + "T12:00:00"), -1));
+            u.streak = (u.last === yest) ? u.streak + 1 : 1;
+            u.last = day;
+            events.push({ user_id: id, event: "solve", props: { theme, score, streak: u.streak }, day });
+            if (Math.random() < 0.20 + Math.min(0.15, u.streak * 0.015))
+              events.push({ user_id: id, event: "share", props: { theme, solved: true }, day });
+          } else {
+            events.push({ user_id: id, event: "fail", props: { theme }, day });
+            u.streak = 0;
+          }
+        }
+        // else: abandoned mid-puzzle
+      }
+    }
+  }
+  return events;
+}
+
+// ---------- aggregation ----------
+function aggregate(events) {
+  const perDay = {};
+  const userActivity = {};       // user -> Set(days)
+  const latestStreak = {};       // user -> { day, streak }
+  const themes = {};             // theme -> { starts:Set, solves, fails, scoreSum, n }
+  const D = day => perDay[day] ||= { users:new Set(), starters:new Set(), finishers:new Set(), solvers:new Set(), sharers:new Set(), scores:[], fails:0 };
+
+  for (const e of events) {
+    const d = D(e.day);
+    const p = e.props || {};
+    d.users.add(e.user_id);
+    (userActivity[e.user_id] ||= new Set()).add(e.day);
+    if (e.event === "start") {
+      d.starters.add(e.user_id);
+      if (p.theme) ((themes[p.theme] ||= { starters:new Set(), solves:0, fails:0, scoreSum:0, n:0 }).starters).add(e.user_id + "|" + e.day);
+    }
+    if (e.event === "solve") {
+      d.finishers.add(e.user_id); d.solvers.add(e.user_id);
+      if (typeof p.score === "number") d.scores.push(p.score);
+      if (p.theme) { const t = themes[p.theme] ||= { starters:new Set(), solves:0, fails:0, scoreSum:0, n:0 }; t.solves++; if (typeof p.score === "number") { t.scoreSum += p.score; t.n++; } }
+      if (typeof p.streak === "number") {
+        const cur = latestStreak[e.user_id];
+        if (!cur || e.day >= cur.day) latestStreak[e.user_id] = { day: e.day, streak: p.streak };
+      }
+    }
+    if (e.event === "fail") {
+      d.finishers.add(e.user_id); d.fails++;
+      if (p.theme) (themes[p.theme] ||= { starters:new Set(), solves:0, fails:0, scoreSum:0, n:0 }).fails++;
+    }
+    if (e.event === "share") d.sharers.add(e.user_id);
+  }
+
+  const allDays = Object.keys(perDay).sort();
+  const days = allDays.slice(-DAYS_SHOWN);
+  const maxDay = allDays[allDays.length - 1];
+
+  // churn: active day D, absent D+1 and D+2 (only for days where both are observable)
+  const churn = days.map(day => {
+    const d1 = dstr(addDays(new Date(day + "T12:00:00"), 1));
+    const d2 = dstr(addDays(new Date(day + "T12:00:00"), 2));
+    if (d2 > maxDay) return null;
+    const cohort = [...perDay[day].users];
+    if (!cohort.length) return null;
+    const lost = cohort.filter(u => !userActivity[u].has(d1) && !userActivity[u].has(d2)).length;
+    return +(100 * lost / cohort.length).toFixed(1);
+  });
+
+  // D1 retention (avg over observable days)
+  let retNum = 0, retDen = 0;
+  for (const day of days) {
+    const d1 = dstr(addDays(new Date(day + "T12:00:00"), 1));
+    if (d1 > maxDay) continue;
+    const cohort = [...perDay[day].users];
+    if (!cohort.length) continue;
+    retNum += cohort.filter(u => userActivity[u].has(d1)).length;
+    retDen += cohort.length;
+  }
+
+  const guessDist = [0,0,0,0];  // solved at 2,3,4,5
+  let failTotal = 0;
+  const totals = { users:new Set(), starters:0, finishers:0, solvers:0, sharers:0 };
+  for (const day of days) {
+    const d = perDay[day];
+    d.scores.forEach(s => { if (s>=2 && s<=5) guessDist[s-2]++; });
+    failTotal += d.fails;
+    d.users.forEach(u => totals.users.add(u));
+    totals.starters += d.starters.size;
+    totals.finishers += d.finishers.size;
+    totals.solvers += d.solvers.size;
+    totals.sharers += d.sharers.size;
+  }
+  const opens = days.reduce((a, day) => a + perDay[day].users.size, 0);
+
+  const streakBuckets = { "1":0, "2":0, "3-6":0, "7-13":0, "14-29":0, "30+":0 };
+  for (const [u, s] of Object.entries(latestStreak)) {
+    // a streak only counts as current if the user solved recently (within 2 days of data end)
+    if (s.day < dstr(addDays(new Date(maxDay + "T12:00:00"), -2))) continue;
+    const v = s.streak;
+    const b = v <= 1 ? "1" : v === 2 ? "2" : v <= 6 ? "3-6" : v <= 13 ? "7-13" : v <= 29 ? "14-29" : "30+";
+    streakBuckets[b]++;
+  }
+
+  return { perDay, days, churn, retD1: retDen ? 100*retNum/retDen : null, guessDist, failTotal, totals, opens, streakBuckets, themes };
+}
+
+// ---------- render ----------
+function pct(x) { return x === null || isNaN(x) ? "—" : x.toFixed(0) + "%"; }
+
+function kpiCards(agg) {
+  const days = agg.days;
+  const last = days[days.length-1], prev = days[days.length-2];
+  const dau = agg.perDay[last].users.size;
+  const dauPrev = prev ? agg.perDay[prev].users.size : null;
+  const solveTotal = agg.guessDist.reduce((a,b)=>a+b,0);
+  const avgGuess = solveTotal ? (agg.guessDist.reduce((a,c,i)=>a+c*(i+2),0)/solveTotal).toFixed(2) : "—";
+  const solveRate = (solveTotal+agg.failTotal) ? 100*solveTotal/(solveTotal+agg.failTotal) : null;
+  const shareRate = agg.totals.solvers ? 100*agg.totals.sharers/agg.totals.solvers : null;
+  const churnVals = agg.churn.filter(v => v !== null).slice(-7);
+  const churnAvg = churnVals.length ? churnVals.reduce((a,b)=>a+b,0)/churnVals.length : null;
+  const streaks7 = agg.streakBuckets["7-13"] + agg.streakBuckets["14-29"] + agg.streakBuckets["30+"];
+
+  const cards = [
+    ["Players today", dau, dauPrev !== null ? (dau >= dauPrev ? `▲ ${dau-dauPrev} vs yesterday` : `▼ ${dauPrev-dau} vs yesterday`) : "", dau >= (dauPrev??0)],
+    ["Unique players (period)", agg.totals.users.size, "", true],
+    ["Solve rate", pct(solveRate), "of finished games", solveRate > 75],
+    ["Avg guesses", avgGuess, "target: 3.2–3.8", true],
+    ["Share rate", pct(shareRate), "of solvers — the viral engine", shareRate > 15],
+    ["D1 retention", pct(agg.retD1), "came back next day", agg.retD1 > 35],
+    ["2-day churn (7d avg)", pct(churnAvg), "lower is better", churnAvg !== null && churnAvg < 50],
+    ["Streaks 7+ days", streaks7, "your core fans", true],
+  ];
+  document.getElementById("kpis").innerHTML = cards.map(([l,v,d,good]) =>
+    `<div class="kpi"><div class="v">${v}</div><div class="l">${l}</div><div class="d ${good?"up":"down"}">${d}</div></div>`).join("");
+}
+
+function build(agg) {
+  const days = agg.days;
+  const labels = days.map(d => d.slice(5));
+  document.getElementById("range").textContent =
+    `${days[0]} → ${days[days.length-1]} · ${agg.totals.users.size} unique players`;
+
+  kpiCards(agg);
+
+  const dau = days.map(d => agg.perDay[d].users.size);
+  const avg7 = dau.map((_, i) => {
+    const w = dau.slice(Math.max(0, i-6), i+1);
+    return +(w.reduce((a,b)=>a+b,0)/w.length).toFixed(1);
+  });
+  new Chart(dauChart, { type: "line", data: { labels, datasets: [
+    { label: "Daily players", data: dau, borderColor: C.accent, backgroundColor: "rgba(233,69,96,0.15)", fill: true, tension: .3, pointRadius: 0 },
+    { label: "7-day avg", data: avg7, borderColor: C.gold, borderDash: [6,4], tension: .3, pointRadius: 0 }
+  ]}, options: { plugins: { legend: { display: true } }, scales: { y: { beginAtZero: true } } } });
+
+  new Chart(funnelChart, { type: "bar", data: {
+    labels: ["Opened", "Started", "Finished", "Solved", "Shared"],
+    datasets: [{ data: [agg.opens, agg.totals.starters, agg.totals.finishers, agg.totals.solvers, agg.totals.sharers],
+      backgroundColor: [C.muted, C.blue, C.purple, C.green, C.gold] }]
+  }, options: { indexAxis: "y", plugins: { legend: { display: false } } } });
+
+  new Chart(guessChart, { type: "bar", data: {
+    labels: ["2 (elite)", "3", "4", "5", "Failed"],
+    datasets: [{ data: [...agg.guessDist, agg.failTotal],
+      backgroundColor: [C.gold, C.green, C.blue, C.purple, C.accent] }]
+  }, options: { plugins: { legend: { display: false } } } });
+
+  const shareRate = days.map(d => {
+    const s = agg.perDay[d]; return s.solvers.size ? +(100*s.sharers.size/s.solvers.size).toFixed(1) : null;
+  });
+  const abandonRate = days.map(d => {
+    const s = agg.perDay[d]; return s.starters.size ? +(100*(s.starters.size - s.finishers.size)/s.starters.size).toFixed(1) : null;
+  });
+  new Chart(shareChart, { type: "line", data: { labels, datasets: [
+    { label: "Share rate %", data: shareRate, borderColor: C.gold, tension: .3, pointRadius: 0 },
+    { label: "Abandon rate %", data: abandonRate, borderColor: C.accent, borderDash: [4,4], tension: .3, pointRadius: 0 }
+  ]}, options: { scales: { y: { beginAtZero: true, max: 100 } } } });
+
+  new Chart(churnChart, { type: "line", data: { labels, datasets: [
+    { label: "2-day churn %", data: agg.churn, borderColor: C.purple, backgroundColor: "rgba(155,89,182,0.15)", fill: true, tension: .3, pointRadius: 0 }
+  ]}, options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } } });
+
+  new Chart(streakChart, { type: "bar", data: {
+    labels: Object.keys(agg.streakBuckets).map(b => b + (b === "1" ? " day" : " days")),
+    datasets: [{ data: Object.values(agg.streakBuckets),
+      backgroundColor: ["#5a5f7d", C.blue, C.green, C.gold, "#e67e22", C.accent] }]
+  }, options: { plugins: { legend: { display: false } } } });
+
+  const order = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  const solveRates = order.map(t => {
+    const th = agg.themes[t]; if (!th) return null;
+    const starts = th.starters.size;
+    return starts ? +(100*th.solves/starts).toFixed(1) : null;
+  });
+  const avgGuesses = order.map(t => {
+    const th = agg.themes[t]; return th && th.n ? +(th.scoreSum/th.n).toFixed(2) : null;
+  });
+  new Chart(themeChart, { type: "bar", data: { labels: order.map(t => THEME_LABELS[t]), datasets: [
+    { label: "Solve rate %", data: solveRates, backgroundColor: "rgba(46,204,113,0.7)", yAxisID: "y" },
+    { label: "Avg guesses", data: avgGuesses, type: "line", borderColor: C.gold, yAxisID: "y2", tension: .3 }
+  ]}, options: { scales: {
+    y: { beginAtZero: true, max: 100, title: { display: true, text: "Solve %" } },
+    y2: { position: "right", min: 2, max: 5, grid: { drawOnChartArea: false }, title: { display: true, text: "Guesses" } }
+  } } });
+}
+
+fetchEvents().then(events => {
+  if (!events.length) {
+    document.getElementById("range").textContent = "No events yet — data appears once players start playing.";
+    return;
+  }
+  build(aggregate(events));
+});
+</script>
+</body>
+</html>
