@@ -711,8 +711,7 @@ async function renderStats() {
   if (today && today.players >= MIN_PLAYERS) {
     const solvedPct = Math.round(100 * today.solved / today.players);
     html += '<div class="stats-title">How everyone did today</div>';
-    html += '<div class="stats-line"><b>' + solvedPct + '%</b> of ' + today.players +
-            ' players solved it</div>';
+    html += '<div class="stats-line"><b>' + solvedPct + '%</b> of players solved it</div>';
     const dist = [today.s2, today.s3, today.s4, today.s5];
     for (let i = 0; i < 4; i++) {
       html += barRow(i + 2, dist[i], today.players, myScore === i + 2);
@@ -727,9 +726,7 @@ async function renderStats() {
     }
   } else if (today) {
     html += '<div class="stats-title">How everyone did today</div>';
-    html += '<div class="stats-line">Only ' + today.players +
-            (today.players === 1 ? " player" : " players") +
-            ' so far — you\'re early 🌱</div>';
+    html += '<div class="stats-line">You\'re early today 🌱 — check back later to see how everyone did</div>';
   }
 
   // yesterday: the global number plus a reminder of your own result
@@ -740,8 +737,7 @@ async function renderStats() {
     html += '<div class="stats-title">Yesterday</div>';
     if (yest && yest.players >= MIN_PLAYERS) {
       const yPct = Math.round(100 * yest.solved / yest.players);
-      html += '<div class="stats-line"><b>' + yPct + '%</b> of ' + yest.players +
-              ' players solved it</div>';
+      html += '<div class="stats-line"><b>' + yPct + '%</b> of players solved it</div>';
     }
     if (yMine) {
       html += '<div class="stats-you">' +
