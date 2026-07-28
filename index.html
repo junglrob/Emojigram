@@ -362,12 +362,12 @@
       <div class="answer-line" id="answerLine"></div>
       <div class="fact" id="factBox"></div>
       <div class="stats-box" id="statsBox"></div>
-      <button class="share-btn" id="shareBtn">📣 Challenge your friends</button>
+      <button class="share-btn" id="shareBtn">📣 Share with your friends</button>
       <div class="share-grid" id="shareGrid"></div>
       <div class="share-tip" id="shareTip"></div>
       <div class="share-preview" id="sharePreview"></div>
       <div class="group-row" id="groupRow">
-        <a class="group-join" id="groupJoin" href="#" target="_blank" rel="noopener">💬 Join the daily puzzle group</a>
+        <a class="group-join" id="groupJoin" href="#" target="_blank" rel="noopener">💬 Join the daily Emojigram group on Telegram</a>
         <button class="group-copy" id="groupCopy" title="Copy group link">🔗</button>
       </div>
     </div>
@@ -807,7 +807,7 @@ function renderResult() {
   $("answerLine").innerHTML = `The answer was <b>${p.answer}</b> — ${p.emojis.join(" ")}`;
   $("factBox").textContent = "💡 " + p.fact;
   $("sharePreview").style.display = "none";
-  $("shareBtn").textContent = inTelegram ? "📣 Challenge your friends" : "📋 Copy share card";
+  $("shareBtn").textContent = "📣 Share with your friends";
   if (GROUP_URL) $("groupRow").classList.add("show");
   renderStats();   // async — fills in once the numbers arrive
 }
@@ -1016,7 +1016,7 @@ $("shareBtn").onclick = async () => {
   buildShareGrid();
   $("shareGrid").classList.add("open");
   $("shareTip").textContent = "Instagram & TikTok don't allow pre-filled posts — tap 📸 to copy the card, then paste it into your story or caption.";
-  $("shareBtn").textContent = "📣 Share to…";
+  $("shareBtn").textContent = "📣 Share with your friends";
 };
 
 // ---- join / share the group ----
