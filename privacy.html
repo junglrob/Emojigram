@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy — Emojigram</title>
+<meta name="description" content="How Emojigram handles data: no accounts, no personal data, anonymous gameplay stats only.">
+<style>
+  :root { --bg1:#1a1a2e; --bg2:#16213e; --ink:#e8eaf2; --muted:#9aa0be; --accent:#e94560; --card:#1f2440; --edge:#2b3158; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:"Segoe UI", system-ui, -apple-system, sans-serif;
+    background:linear-gradient(160deg, var(--bg1), var(--bg2));
+    min-height:100vh; color:var(--ink); padding:32px 16px 64px; line-height:1.65;
+  }
+  .wrap { max-width:680px; margin:0 auto; }
+  .brand { text-align:center; margin-bottom:8px; }
+  .brand a { text-decoration:none; color:#fff; font-size:24px; font-weight:800; letter-spacing:1px; }
+  .brand a span { color:var(--accent); }
+  .sub { text-align:center; color:var(--muted); font-size:13px; margin-bottom:28px; }
+  h1 { font-size:26px; margin-bottom:6px; }
+  .updated { color:var(--muted); font-size:13px; margin-bottom:24px; }
+  h2 { font-size:17px; margin:26px 0 8px; color:#fff; }
+  p, li { color:#cdd2e8; font-size:15px; }
+  ul { margin:8px 0 8px 20px; }
+  li { margin-bottom:6px; }
+  .card { background:var(--card); border:1px solid var(--edge); border-radius:14px; padding:18px 20px; margin:18px 0; }
+  .card strong { color:#fff; }
+  a { color:#7fb5ff; }
+  .back { display:inline-block; margin-top:28px; color:var(--muted); font-size:14px; }
+  .tldr { font-size:15px; color:#fff; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><a href="/">EMOJI<span>GRAM</span></a></div>
+  <div class="sub">The daily emoji puzzle</div>
+
+  <h1>Privacy Policy</h1>
+  <div class="updated">Last updated: 27 July 2026</div>
+
+  <div class="card">
+    <p class="tldr"><strong>The short version:</strong> No accounts. No sign-up. No personal information. No advertising. We count anonymous gameplay events so we can tell which puzzles are too hard, and we never sell or share data with anyone.</p>
+  </div>
+
+  <h2>What we collect</h2>
+  <p>When you play, the game records these anonymous events:</p>
+  <ul>
+    <li>Page opened, puzzle started, puzzle solved or given up, result shared</li>
+    <li>How many emoji clues a puzzle took to solve, and which day's theme it was</li>
+    <li>Your current daily streak length</li>
+    <li>An approximate location — city, region and country — determined from your IP address</li>
+    <li>Your device's time zone and browser language</li>
+    <li>A random identifier so repeat visits can be counted as one player</li>
+  </ul>
+
+  <h2>What we do NOT collect</h2>
+  <ul>
+    <li>Your name, email address, or phone number</li>
+    <li>Your precise location — the game never requests GPS access</li>
+    <li>Your IP address is not stored; it is used only momentarily to estimate city and country</li>
+    <li>Anything you type other than whether a guess was correct</li>
+    <li>Any data about your activity on other websites</li>
+  </ul>
+
+  <h2>Who you are to us</h2>
+  <p>If you play on the web, you're a random string like <em>web_8fwinmebec</em>. If you play inside Telegram, you're your numeric Telegram user ID — we never receive your Telegram name, username, phone number, or contacts. We cannot identify you personally, and we cannot contact you.</p>
+
+  <h2>Your game progress</h2>
+  <p>Your streak and daily results are stored on your own device (browser storage), or in Telegram's CloudStorage if you play inside Telegram, which keeps them synced across your devices. This data belongs to you: clearing your browser data, or removing the app in Telegram, erases it.</p>
+
+  <h2>Services we rely on</h2>
+  <ul>
+    <li><strong>Supabase</strong> — stores the anonymous gameplay events described above.</li>
+    <li><strong>GitHub Pages</strong> — hosts the website.</li>
+    <li><strong>ipwho.is</strong> — receives your IP address once per session to return an approximate city and country. We store only the result, not the IP.</li>
+    <li><strong>Telegram</strong> — if you play inside Telegram, its own <a href="https://telegram.org/privacy" target="_blank" rel="noopener">privacy policy</a> also applies.</li>
+  </ul>
+
+  <h2>Cookies and advertising</h2>
+  <p>Emojigram sets no cookies, runs no advertising, and contains no third-party tracking or analytics beyond what is listed above. If advertising is ever introduced, this page will be updated before it launches.</p>
+
+  <h2>How long we keep data</h2>
+  <p>Anonymous event records are retained for up to 24 months so year-over-year trends can be compared, then deleted.</p>
+
+  <h2>Children</h2>
+  <p>Emojigram is suitable for all ages and collects no personal information from anyone, including children.</p>
+
+  <h2>Your rights</h2>
+  <p>Because the data is anonymous, we generally cannot locate records belonging to a specific person. You can erase your own game progress at any time by clearing your browser data or removing the app in Telegram. If you have a question or a request about data, email the address below and we'll do what we can.</p>
+
+  <h2>Contact</h2>
+  <p>Questions about this policy: <a href="mailto:junglrob@gmail.com">junglrob@gmail.com</a></p>
+
+  <h2>Changes</h2>
+  <p>If this policy changes, the date at the top of this page will be updated.</p>
+
+  <a class="back" href="/">← Back to the game</a>
+</div>
+</body>
+</html>
