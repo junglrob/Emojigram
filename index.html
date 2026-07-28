@@ -56,12 +56,69 @@
   .brand p { color: #aab; font-size: 13px; margin-top: 2px; }
 
   .streak-bar {
-    text-align: center;
-    color: #ffd76e;
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 12px;
-    min-height: 18px;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 14px;
+    min-height: 4px;
+  }
+  .streak-badge {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 18px 9px 14px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #ff9500, #ff5722 55%, #e0342b);
+    box-shadow: 0 4px 18px rgba(255, 106, 0, 0.45),
+                inset 0 1px 0 rgba(255,255,255,0.35);
+    color: #fff;
+    animation: streakIn .45s ease;
+  }
+  /* flickering glow behind the badge */
+  .streak-badge::before {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: 22px;
+    background: radial-gradient(ellipse at center,
+                rgba(255,150,0,0.55), rgba(255,80,0,0) 70%);
+    z-index: -1;
+    animation: flicker 2.2s ease-in-out infinite;
+  }
+  .streak-flame {
+    font-size: 24px;
+    line-height: 1;
+    animation: flameDance 1.6s ease-in-out infinite;
+    filter: drop-shadow(0 0 6px rgba(255, 220, 120, 0.9));
+  }
+  .streak-num {
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.5px;
+  }
+  .streak-word {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: .92;
+    line-height: 1.2;
+  }
+  .streak-stack { display: flex; flex-direction: column; align-items: flex-start; }
+  @keyframes flameDance {
+    0%, 100% { transform: scale(1) rotate(-3deg); }
+    50%      { transform: scale(1.14) rotate(3deg); }
+  }
+  @keyframes flicker {
+    0%, 100% { opacity: .85; transform: scale(1); }
+    45%      { opacity: 1;   transform: scale(1.06); }
+    70%      { opacity: .75; transform: scale(0.98); }
+  }
+  @keyframes streakIn {
+    0%   { transform: scale(0.6); opacity: 0; }
+    60%  { transform: scale(1.08); }
+    100% { transform: scale(1); opacity: 1; }
   }
 
   .days { display: flex; gap: 5px; margin-bottom: 14px; }
@@ -157,7 +214,25 @@
 
   .result { display: none; text-align: center; margin-top: 6px; }
   .result .big { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
-  .result .answer-line { font-size: 15px; margin-bottom: 10px; }
+  .result .answer-line {
+    font-size: 15px;
+    margin-bottom: 10px;
+  }
+  .answer-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .answer-text {
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
   .result .fact {
     background: var(--tile);
     border-radius: 12px;
@@ -620,8 +695,19 @@ function recordSolve() {
   renderStreak();
 }
 function renderStreak() {
-  document.getElementById("streakBar").textContent =
-    streak > 0 ? `🔥 ${streak}-day streak` : "";
+  const bar = document.getElementById("streakBar");
+  if (streak > 0) {
+    bar.innerHTML =
+      '<div class="streak-badge">' +
+        '<span class="streak-flame">🔥</span>' +
+        '<div class="streak-stack">' +
+          '<span class="streak-num">' + streak + '</span>' +
+          '<span class="streak-word">day' + (streak === 1 ? "" : "s") + ' in a row</span>' +
+        '</div>' +
+      '</div>';
+  } else {
+    bar.innerHTML = "";
+  }
 }
 
 // ---- per-day results (persisted, pruned to 30 days) ----
@@ -841,7 +927,10 @@ function renderResult() {
   } else {
     $("resultBig").textContent = "🙈 Stumped!";
   }
-  $("answerLine").innerHTML = `The answer was <b>${p.answer}</b> — ${p.emojis.join(" ")}`;
+  // The five emojis are already shown as tiles above — no need to repeat them.
+  $("answerLine").innerHTML =
+    '<div class="answer-label">The answer was</div>' +
+    '<div class="answer-text">' + p.answer + '</div>';
   $("factBox").textContent = "💡 " + p.fact;
   $("sharePreview").style.display = "none";
   $("shareBtn").textContent = "📣 Share with your friends";
@@ -869,7 +958,8 @@ function render(justRevealedIdx) {
   $("themeName").textContent = `${t.icon} ${t.theme}`;
   $("themeName").style.background = t.color;
   const n = dayNumber(WEEK_DATES[current]);
-  $("puzzleNum").textContent = n > 0 ? `Emojigram #${n}` : "Emojigram (preview)";
+  // puzzle number stays out of the UI (still used in share cards)
+  $("puzzleNum").textContent = "";
   renderTabs();
   renderTiles(justRevealedIdx);
 
