@@ -236,9 +236,17 @@ function aggregate(events) {
     if (e.event === "share") d.sharers.add(e.user_id);
   }
 
-  const allDays = Object.keys(perDay).sort();
-  const days = allDays.slice(-DAYS_SHOWN);
-  const maxDay = allDays[allDays.length - 1];
+  // Anchor the window on the VIEWER's local calendar, not on whatever days
+  // happen to exist in the data. Players in later timezones can otherwise
+  // create a "tomorrow" bucket and make today look empty.
+  const todayLocal = new Date(); todayLocal.setHours(0,0,0,0);
+  const days = [];
+  for (let i = DAYS_SHOWN - 1; i >= 0; i--) {
+    const d = dstr(addDays(todayLocal, -i));
+    D(d);                     // ensure the bucket exists (zero-filled)
+    days.push(d);
+  }
+  const maxDay = days[days.length - 1];   // = today, local
 
   // churn: active day D, absent D+1 and D+2 (only for days where both are observable)
   const churn = days.map(day => {
@@ -305,8 +313,13 @@ function kpiCards(agg) {
   const churnAvg = churnVals.length ? churnVals.reduce((a,b)=>a+b,0)/churnVals.length : null;
   const streaks7 = agg.streakBuckets["7-13"] + agg.streakBuckets["14-29"] + agg.streakBuckets["30+"];
 
+  const visitorsToday = agg.perDay[last].visitors.size;
   const cards = [
-    ["Players today", dau, dauPrev !== null ? (dau >= dauPrev ? `▲ ${dau-dauPrev} vs yesterday` : `▼ ${dauPrev-dau} vs yesterday`) : "", dau >= (dauPrev??0)],
+    ["Players today", dau,
+      dau === 0 && visitorsToday > 0
+        ? `${visitorsToday} visitors, no plays yet`
+        : (dauPrev !== null ? (dau >= dauPrev ? `▲ ${dau-dauPrev} vs yesterday` : `▼ ${dauPrev-dau} vs yesterday`) : ""),
+      dau >= (dauPrev??0)],
     ["Unique players (period)", agg.totals.users.size, "played, not just visited", true],
     ["Solve rate", pct(solveRate), "of finished games", solveRate > 75],
     ["Avg guesses", avgGuess, "target: 3.2–3.8", true],

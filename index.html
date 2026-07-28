@@ -189,6 +189,40 @@
     text-align: left;
     display: none;
   }
+  .share-grid {
+    display: none;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .share-grid.open { display: grid; }
+  .sbtn {
+    border: none;
+    border-radius: 12px;
+    padding: 9px 4px 7px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    line-height: 1.5;
+    transition: transform .12s;
+  }
+  .sbtn:active { transform: scale(0.94); }
+  .sbtn .ic { display: block; font-size: 19px; margin-bottom: 1px; }
+  .s-fb { background: #1877f2; }
+  .s-tg { background: #229ed9; }
+  .s-wa { background: #25d366; }
+  .s-x  { background: #16181c; }
+  .s-rd { background: #ff4500; }
+  .s-em { background: #6b7280; }
+  .s-cp { background: #4b5563; }
+  .s-ig { background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); }
+  .share-tip {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 8px;
+    line-height: 1.4;
+  }
 
   .locked-box { display: none; text-align: center; padding: 10px 0 4px; }
   .locked-box .big-lock { font-size: 40px; margin-bottom: 8px; }
@@ -239,6 +273,8 @@
       <div class="answer-line" id="answerLine"></div>
       <div class="fact" id="factBox"></div>
       <button class="share-btn" id="shareBtn">📣 Challenge your friends</button>
+      <div class="share-grid" id="shareGrid"></div>
+      <div class="share-tip" id="shareTip"></div>
       <div class="share-preview" id="sharePreview"></div>
     </div>
   </div>
@@ -620,28 +656,117 @@ $("giveupBtn").onclick = () => {
   render();
 };
 
+// ---- sharing ----
+function trackShare(where) {
+  track("share", {
+    theme: DATA.themes[current].day,
+    n: dayNumber(WEEK_DATES[current]),
+    solved: statusOf(current) === "solved",
+    via: where
+  });
+}
+
+async function copyCard(showPreview) {
+  const webText = buildShareText() + "\n" + SITE_URL;
+  try {
+    await navigator.clipboard.writeText(webText);
+    return true;
+  } catch (e) {
+    if (showPreview) {
+      const prev = $("sharePreview");
+      prev.textContent = webText;
+      prev.style.display = "block";
+    }
+    return false;
+  }
+}
+
+// Networks that support pre-filled web sharing. Instagram and TikTok do not
+// allow it at all — they are reachable only through the device share sheet.
+const NETWORKS = [
+  { key:"fb", cls:"s-fb", ic:"f",  label:"Facebook",
+    url: (t,u) => "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(u) + "&quote=" + encodeURIComponent(t) },
+  { key:"tg", cls:"s-tg", ic:"✈️", label:"Telegram",
+    url: (t,u) => "https://t.me/share/url?url=" + encodeURIComponent(u) + "&text=" + encodeURIComponent(t) },
+  { key:"wa", cls:"s-wa", ic:"💬", label:"WhatsApp",
+    url: (t,u) => "https://api.whatsapp.com/send?text=" + encodeURIComponent(t + "\n" + u) },
+  { key:"x",  cls:"s-x",  ic:"𝕏",  label:"X",
+    url: (t,u) => "https://twitter.com/intent/tweet?text=" + encodeURIComponent(t) + "&url=" + encodeURIComponent(u) },
+  { key:"rd", cls:"s-rd", ic:"👽", label:"Reddit",
+    url: (t,u) => "https://www.reddit.com/submit?url=" + encodeURIComponent(u) + "&title=" + encodeURIComponent(t.split("\n")[0]) },
+  { key:"em", cls:"s-em", ic:"✉️", label:"Email",
+    url: (t,u) => "mailto:?subject=" + encodeURIComponent("Can you beat my Emojigram score?") + "&body=" + encodeURIComponent(t + "\n" + u) }
+];
+
+function buildShareGrid() {
+  const grid = $("shareGrid");
+  if (grid.dataset.built) return;
+  grid.dataset.built = "1";
+
+  NETWORKS.forEach(function (n) {
+    const b = document.createElement("button");
+    b.className = "sbtn " + n.cls;
+    b.innerHTML = '<span class="ic">' + n.ic + '</span>' + n.label;
+    b.onclick = function () {
+      trackShare(n.key);
+      window.open(n.url(buildShareText(), SITE_URL), "_blank", "noopener,width=650,height=550");
+    };
+    grid.appendChild(b);
+  });
+
+  // Instagram / TikTok: no web share endpoint exists, so copy the card for pasting.
+  const ig = document.createElement("button");
+  ig.className = "sbtn s-ig";
+  ig.innerHTML = '<span class="ic">📸</span>IG / TikTok';
+  ig.onclick = async function () {
+    trackShare("ig_copy");
+    const ok = await copyCard(true);
+    ig.innerHTML = ok ? '<span class="ic">✅</span>Copied!' : '<span class="ic">👇</span>Copy below';
+    setTimeout(function () { ig.innerHTML = '<span class="ic">📸</span>IG / TikTok'; }, 2500);
+  };
+  grid.appendChild(ig);
+
+  const cp = document.createElement("button");
+  cp.className = "sbtn s-cp";
+  cp.innerHTML = '<span class="ic">📋</span>Copy';
+  cp.onclick = async function () {
+    trackShare("copy");
+    const ok = await copyCard(true);
+    cp.innerHTML = ok ? '<span class="ic">✅</span>Copied!' : '<span class="ic">👇</span>Below';
+    setTimeout(function () { cp.innerHTML = '<span class="ic">📋</span>Copy'; }, 2500);
+  };
+  grid.appendChild(cp);
+}
+
 $("shareBtn").onclick = async () => {
   const text = buildShareText();
-  track("share", { theme: DATA.themes[current].day, n: dayNumber(WEEK_DATES[current]), solved: statusOf(current) === "solved" });
+
+  // 1. Inside Telegram: native chat picker
   if (inTelegram) {
-    const url = `https://t.me/${BOT_USERNAME}/play`;
-    tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`);
-  } else {
-    // On the web, share the website — works for everyone, Telegram or not,
-    // and carries the link preview card.
-    const prev = $("sharePreview");
-    // URL alone on its own line: platforms auto-link it and attach the preview card
-    const webText = text + `\n${SITE_URL}`;
-    prev.textContent = webText;
-    prev.style.display = "block";
-    try {
-      await navigator.clipboard.writeText(webText);
-      $("shareBtn").textContent = "✅ Copied! Paste it in any chat";
-    } catch {
-      $("shareBtn").textContent = "👇 Copy the text below";
-    }
-    setTimeout(() => { $("shareBtn").textContent = "📋 Copy share card"; }, 2500);
+    trackShare("telegram");
+    const url = "https://t.me/" + BOT_USERNAME + "/play";
+    tg.openTelegramLink("https://t.me/share/url?url=" + encodeURIComponent(url) + "&text=" + encodeURIComponent(text));
+    return;
   }
+
+  // 2. Phones/tablets: the OS share sheet — Instagram, TikTok, Messages and
+  //    every other installed app, in one tap.
+  if (navigator.share) {
+    try {
+      trackShare("native");
+      await navigator.share({ title: "Emojigram", text: text, url: SITE_URL });
+      return;
+    } catch (e) {
+      if (e && e.name === "AbortError") return;   // user dismissed the sheet
+      // any other error: fall through to the buttons
+    }
+  }
+
+  // 3. Desktop: per-network buttons
+  buildShareGrid();
+  $("shareGrid").classList.add("open");
+  $("shareTip").textContent = "Instagram & TikTok don't allow pre-filled posts — tap 📸 to copy the card, then paste it into your story or caption.";
+  $("shareBtn").textContent = "📣 Share to…";
 };
 
 $("envNote").textContent = inTelegram
