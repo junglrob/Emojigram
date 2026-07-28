@@ -101,9 +101,10 @@
     font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: .8px;
     opacity: .92;
     line-height: 1.2;
+    max-width: 110px;
   }
   .streak-stack { display: flex; flex-direction: column; align-items: flex-start; }
   @keyframes flameDance {
@@ -715,7 +716,8 @@ function renderStreak() {
         '<span class="streak-flame">🔥</span>' +
         '<div class="streak-stack">' +
           '<span class="streak-num">' + streak + '</span>' +
-          '<span class="streak-word">day' + (streak === 1 ? "" : "s") + ' in a row</span>' +
+          '<span class="streak-word">' +
+            (streak === 1 ? "day solved" : "days solved in a row") + '</span>' +
         '</div>' +
       '</div>';
   } else {
