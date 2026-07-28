@@ -1082,8 +1082,10 @@ async function copyCard(showPreview) {
 // Networks that support pre-filled web sharing. Instagram and TikTok do not
 // allow it at all — they are reachable only through the device share sheet.
 const NETWORKS = [
-  { key:"fb", cls:"s-fb", ic:"f",  label:"Facebook",
-    url: (t,u) => "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(u) + "&quote=" + encodeURIComponent(t) },
+  // Facebook ignores pre-filled text (the old `quote` param is deprecated),
+  // so copy the result first and tell the player to paste it.
+  { key:"fb", cls:"s-fb", ic:"f",  label:"Facebook", copyFirst: true,
+    url: (t,u) => "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(u) },
   { key:"tg", cls:"s-tg", ic:"✈️", label:"Telegram",
     url: (t,u) => "https://t.me/share/url?url=" + encodeURIComponent(u) + "&text=" + encodeURIComponent(t) },
   { key:"wa", cls:"s-wa", ic:"💬", label:"WhatsApp",
@@ -1105,8 +1107,16 @@ function buildShareGrid() {
     const b = document.createElement("button");
     b.className = "sbtn " + n.cls;
     b.innerHTML = '<span class="ic">' + n.ic + '</span>' + n.label;
-    b.onclick = function () {
+    b.onclick = async function () {
       trackShare(n.key);
+      if (n.copyFirst) {
+        // Facebook won't accept our text, so put it on the clipboard to paste.
+        const ok = await copyCard(true);
+        $("shareTip").innerHTML = ok
+          ? "📋 <b>Your result is copied</b> — paste it into the Facebook post box. " +
+            "(Facebook doesn't let sites fill that in for you.)"
+          : "👇 Copy the text below, then paste it into your Facebook post.";
+      }
       window.open(n.url(buildShareText(), SITE_URL), "_blank", "noopener,width=650,height=550");
     };
     grid.appendChild(b);
