@@ -250,6 +250,7 @@
 <script>
 // ====== CONFIG — set this after you register your bot with @BotFather ======
 const BOT_USERNAME = "PlayEmojigramBot"; // no @
+const SITE_URL = "emojigram.iynynstudios.com";  // shared when playing on the web
 // Analytics (optional — see analytics-setup.md). Leave empty to disable.
 const ANALYTICS_URL = "https://qadqnrjgaurxkyojhjwu.supabase.co";
 const ANALYTICS_KEY = "sb_publishable_r2DisNEjlnfSrMgLewhTYA_vZZd9ld2";
@@ -626,11 +627,14 @@ $("shareBtn").onclick = async () => {
     const url = `https://t.me/${BOT_USERNAME}/play`;
     tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`);
   } else {
+    // On the web, share the website — works for everyone, Telegram or not,
+    // and carries the link preview card.
     const prev = $("sharePreview");
-    prev.textContent = text + `\nplay: t.me/${BOT_USERNAME}`;
+    const webText = text + `\nplay: ${SITE_URL}`;
+    prev.textContent = webText;
     prev.style.display = "block";
     try {
-      await navigator.clipboard.writeText(text + `\nplay: t.me/${BOT_USERNAME}`);
+      await navigator.clipboard.writeText(webText);
       $("shareBtn").textContent = "✅ Copied! Paste it in any chat";
     } catch {
       $("shareBtn").textContent = "👇 Copy the text below";
