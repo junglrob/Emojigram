@@ -313,6 +313,38 @@
   }
   .group-copy:active { transform: scale(0.94); }
 
+  /* daily calendar reminder */
+  .remind-row {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .remind-row.show { display: flex; }
+  .remind-row input[type="time"] {
+    border: 1px solid #dfe3ec;
+    border-radius: 8px;
+    padding: 4px 6px;
+    font-size: 12px;
+    font-family: inherit;
+    color: var(--ink);
+  }
+  .remind-btn {
+    border: none;
+    background: #eef1f7;
+    color: #47506b;
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .remind-btn:active { transform: scale(0.96); }
+
   .locked-box { display: none; text-align: center; padding: 10px 0 4px; }
   .locked-box .big-lock { font-size: 40px; margin-bottom: 8px; }
   .locked-box p { color: var(--muted); font-size: 14px; }
@@ -369,6 +401,11 @@
       <div class="group-row" id="groupRow">
         <a class="group-join" id="groupJoin" href="#" target="_blank" rel="noopener">💬 Join the daily Emojigram group on Telegram</a>
         <button class="group-copy" id="groupCopy" title="Copy group link">🔗</button>
+      </div>
+      <div class="remind-row" id="remindRow">
+        <span class="remind-label">⏰ Daily reminder at</span>
+        <input type="time" id="remindTime" value="08:00">
+        <button class="remind-btn" id="remindBtn">Add to calendar</button>
       </div>
     </div>
   </div>
@@ -809,6 +846,8 @@ function renderResult() {
   $("sharePreview").style.display = "none";
   $("shareBtn").textContent = "📣 Share with your friends";
   if (GROUP_URL) $("groupRow").classList.add("show");
+  // Telegram already has its own reminders; the .ics is for web players.
+  if (!inTelegram) $("remindRow").classList.add("show");
   renderStats();   // async — fills in once the numbers arrive
 }
 
@@ -1018,6 +1057,72 @@ $("shareBtn").onclick = async () => {
   $("shareTip").textContent = "Instagram & TikTok don't allow pre-filled posts — tap 📸 to copy the card, then paste it into your story or caption.";
   $("shareBtn").textContent = "📣 Share with your friends";
 };
+
+// ---- daily calendar reminder (.ics) ----
+// Uses a "floating" time — no timezone attached — so the reminder fires at the
+// chosen local time wherever the person is, and stays correct across DST.
+function pad(n) { return String(n).padStart(2, "0"); }
+
+function buildICS(hh, mm) {
+  const start = new Date();
+  start.setHours(hh, mm, 0, 0);
+  if (start <= new Date()) start.setDate(start.getDate() + 1);   // start tomorrow if today's time has passed
+
+  const d = start.getFullYear() + pad(start.getMonth() + 1) + pad(start.getDate());
+  const t = pad(hh) + pad(mm) + "00";
+  const end = new Date(start.getTime() + 10 * 60000);
+  const te = pad(end.getHours()) + pad(end.getMinutes()) + "00";
+  const stamp = new Date().toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+  const uid = "emojigram-daily-" + Date.now() + "@iynynstudios.com";
+
+  return [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//IYNYN Studios//Emojigram//EN",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+    "BEGIN:VEVENT",
+    "UID:" + uid,
+    "DTSTAMP:" + stamp,
+    "DTSTART:" + d + "T" + t,
+    "DTEND:" + d + "T" + te,
+    "RRULE:FREQ=DAILY",
+    "SUMMARY:🚲🌕 Emojigram — today's puzzle",
+    "DESCRIPTION:A new emoji puzzle every day. Guess it in as few emojis as you can.\\n\\nPlay: " + SITE_URL,
+    "URL:" + SITE_URL,
+    "TRANSP:TRANSPARENT",
+    "BEGIN:VALARM",
+    "ACTION:DISPLAY",
+    "DESCRIPTION:Today's Emojigram is ready 🚲🌕",
+    "TRIGGER:PT0S",
+    "END:VALARM",
+    "END:VEVENT",
+    "END:VCALENDAR"
+  ].join("\r\n");
+}
+
+if (GROUP_URL !== undefined) {
+  $("remindBtn").onclick = () => {
+    const val = $("remindTime").value || "08:00";
+    const [hh, mm] = val.split(":").map(Number);
+    track("calendar_add", { time: val });
+
+    const ics = buildICS(hh, mm);
+    const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "emojigram-daily-reminder.ics";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+
+    const btn = $("remindBtn");
+    btn.textContent = "✅ Added";
+    setTimeout(() => { btn.textContent = "Add to calendar"; }, 3000);
+  };
+}
 
 // ---- join / share the group ----
 if (GROUP_URL) {
