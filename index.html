@@ -1151,9 +1151,19 @@ if (GROUP_URL) {
   };
 }
 
-$("envNote").textContent = inTelegram
-  ? `Playing as ${tg.initDataUnsafe.user.first_name} · progress syncs to your Telegram account`
-  : "Browser mode — open inside Telegram for synced streaks & native sharing";
+if (inTelegram) {
+  $("envNote").textContent =
+    `Playing as ${tg.initDataUnsafe.user.first_name} · progress syncs to your Telegram account`;
+} else {
+  // Web players: point them at the Telegram group, which is the better home
+  // for the game — synced streaks, daily post, and other players.
+  $("envNote").innerHTML =
+    'Play on Telegram for synced streaks and the daily puzzle post — ' +
+    '<a href="' + (GROUP_URL || "#") + '" target="_blank" rel="noopener" ' +
+    'style="color:#7fb5ff;text-decoration:underline;">join the Emojigram group</a>';
+  const gl = $("envNote").querySelector("a");
+  if (gl) gl.onclick = () => track("group_join", { via: "footer" });
+}
 
 // ---- boot: load content, then saved state, then render ----
 (async function init() {
