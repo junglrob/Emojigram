@@ -282,6 +282,37 @@
     margin-top: 2px;
   }
 
+  /* join-the-group row */
+  .group-row {
+    display: none;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .group-row.show { display: flex; }
+  .group-join {
+    flex: 1;
+    display: block;
+    padding: 10px;
+    border-radius: 12px;
+    background: #229ed9;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    text-align: center;
+  }
+  .group-join:active { transform: scale(0.98); }
+  .group-copy {
+    flex: none;
+    width: 44px;
+    border: none;
+    border-radius: 12px;
+    background: #dfe3ee;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .group-copy:active { transform: scale(0.94); }
+
   .locked-box { display: none; text-align: center; padding: 10px 0 4px; }
   .locked-box .big-lock { font-size: 40px; margin-bottom: 8px; }
   .locked-box p { color: var(--muted); font-size: 14px; }
@@ -335,6 +366,10 @@
       <div class="share-grid" id="shareGrid"></div>
       <div class="share-tip" id="shareTip"></div>
       <div class="share-preview" id="sharePreview"></div>
+      <div class="group-row" id="groupRow">
+        <a class="group-join" id="groupJoin" href="#" target="_blank" rel="noopener">💬 Join the daily puzzle group</a>
+        <button class="group-copy" id="groupCopy" title="Copy group link">🔗</button>
+      </div>
     </div>
   </div>
 
@@ -349,6 +384,8 @@
 // ====== CONFIG — set this after you register your bot with @BotFather ======
 const BOT_USERNAME = "PlayEmojigramBot"; // no @
 const SITE_URL = "https://emojigram.iynynstudios.com";  // shared when playing on the web
+// Public Telegram group. Set to "" to hide the join prompt entirely.
+const GROUP_URL = "https://t.me/emojigramdaily";
 // Analytics (optional — see analytics-setup.md). Leave empty to disable.
 const ANALYTICS_URL = "https://qadqnrjgaurxkyojhjwu.supabase.co";
 const ANALYTICS_KEY = "sb_publishable_r2DisNEjlnfSrMgLewhTYA_vZZd9ld2";
@@ -654,7 +691,9 @@ function buildShareText() {
     line = "🙈 Stumped me today — can you get it?";
   }
   const streakLine = (st === "solved" && streak > 1) ? `\n🔥 ${streak}-day streak` : "";
-  return `Emojigram ${numLabel} · ${t.icon} ${t.theme}\n${teaser}\n${line}${streakLine}`;
+  // Telegram players get the group link too — their friends are on Telegram.
+  const groupLine = (inTelegram && GROUP_URL) ? `\n\nDaily puzzle group: ${GROUP_URL}` : "";
+  return `Emojigram ${numLabel} · ${t.icon} ${t.theme}\n${teaser}\n${line}${streakLine}${groupLine}`;
 }
 
 // ---- global stats: how everyone did, from every channel ----
@@ -769,6 +808,7 @@ function renderResult() {
   $("factBox").textContent = "💡 " + p.fact;
   $("sharePreview").style.display = "none";
   $("shareBtn").textContent = inTelegram ? "📣 Challenge your friends" : "📋 Copy share card";
+  if (GROUP_URL) $("groupRow").classList.add("show");
   renderStats();   // async — fills in once the numbers arrive
 }
 
@@ -978,6 +1018,33 @@ $("shareBtn").onclick = async () => {
   $("shareTip").textContent = "Instagram & TikTok don't allow pre-filled posts — tap 📸 to copy the card, then paste it into your story or caption.";
   $("shareBtn").textContent = "📣 Share to…";
 };
+
+// ---- join / share the group ----
+if (GROUP_URL) {
+  const joinEl = $("groupJoin");
+  joinEl.href = GROUP_URL;
+  joinEl.onclick = (e) => {
+    track("group_join", { via: inTelegram ? "tg" : "web" });
+    if (inTelegram && tg.openTelegramLink) {
+      e.preventDefault();
+      tg.openTelegramLink(GROUP_URL);   // opens in-app rather than a browser
+    }
+  };
+  $("groupCopy").onclick = async () => {
+    track("group_copy", {});
+    const btn = $("groupCopy");
+    try {
+      await navigator.clipboard.writeText(GROUP_URL);
+      btn.textContent = "✅";
+    } catch {
+      const prev = $("sharePreview");
+      prev.textContent = GROUP_URL;
+      prev.style.display = "block";
+      btn.textContent = "👇";
+    }
+    setTimeout(() => { btn.textContent = "🔗"; }, 2000);
+  };
+}
 
 $("envNote").textContent = inTelegram
   ? `Playing as ${tg.initDataUnsafe.user.first_name} · progress syncs to your Telegram account`
