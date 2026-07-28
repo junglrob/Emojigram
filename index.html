@@ -214,6 +214,12 @@
 
   .result { display: none; text-align: center; margin-top: 6px; }
   .result .big { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+  .result-sub {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-top: 3px;
+  }
   .result .answer-line {
     font-size: 15px;
     margin-bottom: 10px;
@@ -323,6 +329,13 @@
     margin-bottom: 4px;
   }
   .stats-line b { color: var(--ink); }
+  .stats-caption {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--muted);
+    margin: 8px 0 4px;
+  }
   .bar-row {
     display: flex;
     align-items: center;
@@ -874,6 +887,7 @@ async function renderStats() {
     const solvedPct = Math.round(100 * today.solved / today.players);
     html += '<div class="stats-title">How everyone did today</div>';
     html += '<div class="stats-line"><b>' + solvedPct + '%</b> of players solved it</div>';
+    html += '<div class="stats-caption">Emoji clues needed</div>';
     const dist = [today.s2, today.s3, today.s4, today.s5];
     for (let i = 0; i < 4; i++) {
       html += barRow(i + 2, dist[i], today.players, myScore === i + 2);
@@ -881,7 +895,7 @@ async function renderStats() {
     if (myScore) {
       const better = dist.slice(0, myScore - 2).reduce((a, b) => a + b, 0);
       const pctBetter = Math.round(100 * better / today.players);
-      html += '<div class="stats-you">You got it in <b>' + myScore + '</b> — ' +
+      html += '<div class="stats-you">You needed <b>' + myScore + '</b> clues — ' +
               (pctBetter === 0
                 ? "nobody did better today 🏆"
                 : "only " + pctBetter + "% did better") + '</div>';
@@ -904,7 +918,7 @@ async function renderStats() {
     if (yMine) {
       html += '<div class="stats-you">' +
         (yMine.st === "solved"
-          ? "You got it in <b>" + yMine.sc + "</b> ✅"
+          ? "You needed <b>" + yMine.sc + "</b> clues ✅"
           : "You didn't get that one 🙈") + '</div>';
     } else {
       html += '<div class="stats-you">You didn\'t play yesterday</div>';
@@ -923,9 +937,12 @@ function renderResult() {
   $("result").style.display = "block";
   if (st === "solved") {
     const flair = sc === 2 ? "🏆 ELITE!" : sc === 3 ? "🔥 Sharp!" : sc === 4 ? "👏 Nice!" : "✅ Got there!";
-    $("resultBig").textContent = `${flair} Solved in ${sc}/5`;
+    const howMany = sc === 2 ? "just 2 emoji clues" : sc + " emoji clues";
+    $("resultBig").innerHTML =
+      flair + '<div class="result-sub">Solved with ' + howMany + '</div>';
   } else {
-    $("resultBig").textContent = "🙈 Stumped!";
+    $("resultBig").innerHTML =
+      '🙈 Stumped!<div class="result-sub">All 5 clues and it still got away</div>';
   }
   // The five emojis are already shown as tiles above — no need to repeat them.
   $("answerLine").innerHTML =
