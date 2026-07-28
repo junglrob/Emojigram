@@ -1107,17 +1107,23 @@ function buildShareGrid() {
     const b = document.createElement("button");
     b.className = "sbtn " + n.cls;
     b.innerHTML = '<span class="ic">' + n.ic + '</span>' + n.label;
-    b.onclick = async function () {
+    b.onclick = function () {
       trackShare(n.key);
+      const text = buildShareText();
+
       if (n.copyFirst) {
         // Facebook won't accept our text, so put it on the clipboard to paste.
-        const ok = await copyCard(true);
-        $("shareTip").innerHTML = ok
-          ? "📋 <b>Your result is copied</b> — paste it into the Facebook post box. " +
-            "(Facebook doesn't let sites fill that in for you.)"
-          : "👇 Copy the text below, then paste it into your Facebook post.";
+        // Start the copy WITHOUT awaiting — awaiting here would consume the
+        // click's user-activation and the popup below would be blocked.
+        copyCard(true).then(function (ok) {
+          $("shareTip").innerHTML = ok
+            ? "📋 <b>Your result is copied</b> — paste it into the Facebook post box " +
+              "(Facebook doesn't allow sites to fill that in for you)."
+            : "👇 Copy the text below, then paste it into your Facebook post.";
+        });
       }
-      window.open(n.url(buildShareText(), SITE_URL), "_blank", "noopener,width=650,height=550");
+
+      window.open(n.url(text, SITE_URL), "_blank", "noopener,width=650,height=550");
     };
     grid.appendChild(b);
   });
@@ -1157,9 +1163,14 @@ $("shareBtn").onclick = async () => {
     return;
   }
 
-  // 2. Phones/tablets: the OS share sheet — Instagram, TikTok, Messages and
-  //    every other installed app, in one tap.
-  if (navigator.share) {
+  // 2. Phones/tablets only: the OS share sheet — Instagram, TikTok, Messages
+  //    and every other installed app, in one tap. Desktop Chrome also exposes
+  //    navigator.share, but its dialog is worse than our own buttons, so we
+  //    check for a touch device rather than just the API.
+  const isTouchDevice =
+    (navigator.maxTouchPoints || 0) > 0 || "ontouchstart" in window;
+
+  if (navigator.share && isTouchDevice) {
     try {
       trackShare("native");
       await navigator.share({ title: "Emojigram", text: text, url: SITE_URL });
