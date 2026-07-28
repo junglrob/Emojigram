@@ -66,6 +66,19 @@
   .panel .note { font-size: 11px; color: var(--muted); margin-bottom: 10px; }
   .panel.wide { grid-column: 1 / -1; }
   canvas { max-height: 260px; }
+  .city-list { max-height: 260px; overflow-y: auto; }
+  .city-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 2px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: 13px;
+  }
+  .city-row .place { color: var(--ink); }
+  .city-row .place span { color: var(--muted); font-size: 11px; margin-left: 6px; }
+  .city-row .n { font-weight: 700; color: var(--gold-txt, #f1c40f); }
+  .city-empty { color: var(--muted); font-size: 12px; padding: 10px 0; }
 </style>
 </head>
 <body>
@@ -113,6 +126,16 @@
       <h3>Theme performance</h3>
       <div class="note">Solve rate and avg guesses by weekday — spot your weakest day</div>
       <canvas id="themeChart"></canvas>
+    </div>
+    <div class="panel">
+      <h3>Where players are — countries</h3>
+      <div class="note">Unique players by country (city-level only, no precise location)</div>
+      <canvas id="countryChart"></canvas>
+    </div>
+    <div class="panel">
+      <h3>Top cities</h3>
+      <div class="note">Unique players by city</div>
+      <div id="cityList" class="city-list"></div>
     </div>
   </div>
 </div>
@@ -205,6 +228,8 @@ function aggregate(events) {
   const userActivity = {};       // user -> Set(days)
   const latestStreak = {};       // user -> { day, streak }
   const themes = {};             // theme -> { starts:Set, solves, fails, scoreSum, n }
+  const countries = {};          // country -> Set(user)
+  const cities = {};             // "city|country" -> Set(user)
   const D = day => perDay[day] ||= { users:new Set(), visitors:new Set(), starters:new Set(), finishers:new Set(), solvers:new Set(), sharers:new Set(), scores:[], fails:0 };
 
   for (const e of events) {
@@ -234,6 +259,18 @@ function aggregate(events) {
       if (p.theme) (themes[p.theme] ||= { starters:new Set(), solves:0, fails:0, scoreSum:0, n:0 }).fails++;
     }
     if (e.event === "share") d.sharers.add(e.user_id);
+
+    // location — attribute each player to the last place we saw them
+    if (e.event !== "open") {
+      const country = p.country || (p.cc ? p.cc : null);
+      const city = p.city || null;
+      if (country) (countries[country] ||= new Set()).add(e.user_id);
+      if (city) {
+        const label = city + (country ? "|" + country : "");
+        (cities[label] ||= new Set()).add(e.user_id);
+      }
+      if (!country && !city && p.tz) (countries["(unknown — " + p.tz + ")"] ||= new Set()).add(e.user_id);
+    }
   }
 
   // Anchor the window on the VIEWER's local calendar, not on whatever days
@@ -294,7 +331,7 @@ function aggregate(events) {
     streakBuckets[b]++;
   }
 
-  return { perDay, days, churn, retD1: retDen ? 100*retNum/retDen : null, guessDist, failTotal, totals, opens, streakBuckets, themes };
+  return { perDay, days, churn, retD1: retDen ? 100*retNum/retDen : null, guessDist, failTotal, totals, opens, streakBuckets, themes, countries, cities };
 }
 
 // ---------- render ----------
@@ -394,6 +431,26 @@ function build(agg) {
   const avgGuesses = order.map(t => {
     const th = agg.themes[t]; return th && th.n ? +(th.scoreSum/th.n).toFixed(2) : null;
   });
+  // --- location panels ---
+  const countryRows = Object.entries(agg.countries)
+    .map(([k, v]) => [k, v.size]).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  new Chart(countryChart, { type: "bar", data: {
+    labels: countryRows.length ? countryRows.map(r => r[0]) : ["No data yet"],
+    datasets: [{ data: countryRows.length ? countryRows.map(r => r[1]) : [0],
+      backgroundColor: C.blue }]
+  }, options: { indexAxis: "y", plugins: { legend: { display: false } },
+    scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } } });
+
+  const cityRows = Object.entries(agg.cities)
+    .map(([k, v]) => [k, v.size]).sort((a, b) => b[1] - a[1]).slice(0, 25);
+  const cityEl = document.getElementById("cityList");
+  cityEl.innerHTML = cityRows.length
+    ? cityRows.map(([label, n]) => {
+        const [city, country] = label.split("|");
+        return `<div class="city-row"><div class="place">${city}${country ? `<span>${country}</span>` : ""}</div><div class="n">${n}</div></div>`;
+      }).join("")
+    : `<div class="city-empty">No location data yet — it appears once players visit after this update ships.</div>`;
+
   new Chart(themeChart, { type: "bar", data: { labels: order.map(t => THEME_LABELS[t]), datasets: [
     { label: "Solve rate %", data: solveRates, backgroundColor: "rgba(46,204,113,0.7)", yAxisID: "y" },
     { label: "Avg guesses", data: avgGuesses, type: "line", borderColor: C.gold, yAxisID: "y2", tension: .3 }
