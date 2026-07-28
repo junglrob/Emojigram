@@ -1158,9 +1158,10 @@ if (inTelegram) {
   // Web players: point them at the Telegram group, which is the better home
   // for the game — synced streaks, daily post, and other players.
   $("envNote").innerHTML =
-    'Play on Telegram for synced streaks and the daily puzzle post — ' +
+    'Play on Telegram and join others in the fun — ' +
     '<a href="' + (GROUP_URL || "#") + '" target="_blank" rel="noopener" ' +
-    'style="color:#7fb5ff;text-decoration:underline;">join the Emojigram group</a>';
+    'style="color:#7fb5ff;text-decoration:underline;font-weight:600;">' +
+    'get the daily puzzle in your chat 🚲🌕</a>';
   const gl = $("envNote").querySelector("a");
   if (gl) gl.onclick = () => track("group_join", { via: "footer" });
 }
