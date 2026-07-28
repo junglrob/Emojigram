@@ -224,6 +224,64 @@
     line-height: 1.4;
   }
 
+  /* global stats on the result screen */
+  .stats-box {
+    display: none;
+    background: var(--tile);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    text-align: left;
+  }
+  .stats-box.show { display: block; }
+  .stats-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--muted);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .stats-line {
+    font-size: 13px;
+    color: #47506b;
+    margin-bottom: 4px;
+  }
+  .stats-line b { color: var(--ink); }
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 3px;
+    font-size: 12px;
+  }
+  .bar-row .lab { width: 14px; color: var(--muted); flex: none; }
+  .bar-track {
+    flex: 1;
+    height: 14px;
+    background: #dfe3ee;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: var(--accent);
+    transition: width .5s ease;
+    min-width: 2px;
+  }
+  .bar-fill.you { background: var(--green); }
+  .bar-row .pct { width: 34px; text-align: right; color: #5a6178; flex: none; }
+  .stats-sep {
+    border-top: 1px solid #dbe0ec;
+    margin: 10px 0 8px;
+  }
+  .stats-you {
+    font-size: 12px;
+    color: #47506b;
+    margin-top: 2px;
+  }
+
   .locked-box { display: none; text-align: center; padding: 10px 0 4px; }
   .locked-box .big-lock { font-size: 40px; margin-bottom: 8px; }
   .locked-box p { color: var(--muted); font-size: 14px; }
@@ -272,6 +330,7 @@
       <div class="big" id="resultBig"></div>
       <div class="answer-line" id="answerLine"></div>
       <div class="fact" id="factBox"></div>
+      <div class="stats-box" id="statsBox"></div>
       <button class="share-btn" id="shareBtn">📣 Challenge your friends</button>
       <div class="share-grid" id="shareGrid"></div>
       <div class="share-tip" id="shareTip"></div>
@@ -598,6 +657,108 @@ function buildShareText() {
   return `Emojigram ${numLabel} · ${t.icon} ${t.theme}\n${teaser}\n${line}${streakLine}`;
 }
 
+// ---- global stats: how everyone did, from every channel ----
+const statsCache = {};
+async function fetchDailyStats(dayStr) {
+  if (!ANALYTICS_URL || !ANALYTICS_KEY) return null;
+  // past days are settled, so cache them; today keeps changing, so don't
+  const isToday = dayStr === dateStr(TODAY);
+  if (!isToday && statsCache[dayStr] !== undefined) return statsCache[dayStr];
+  try {
+    const r = await fetch(ANALYTICS_URL + "/rest/v1/rpc/daily_stats", {
+      method: "POST",
+      headers: {
+        apikey: ANALYTICS_KEY,
+        Authorization: "Bearer " + ANALYTICS_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ d: dayStr })
+    });
+    const j = await r.json();
+    statsCache[dayStr] = (j && typeof j.players === "number") ? j : null;
+  } catch (e) {
+    statsCache[dayStr] = null;
+  }
+  return statsCache[dayStr];
+}
+
+const MIN_PLAYERS = 3;   // below this the percentages are meaningless
+
+function barRow(score, count, total, isYou) {
+  const pct = total ? Math.round(100 * count / total) : 0;
+  return '<div class="bar-row">' +
+           '<div class="lab">' + score + '</div>' +
+           '<div class="bar-track"><div class="bar-fill' + (isYou ? " you" : "") +
+             '" style="width:' + Math.max(pct, count ? 3 : 0) + '%"></div></div>' +
+           '<div class="pct">' + pct + '%</div>' +
+         '</div>';
+}
+
+async function renderStats() {
+  const box = $("statsBox");
+  box.classList.remove("show");
+  box.innerHTML = "";
+
+  const dayStr = dateStr(WEEK_DATES[current]);
+  const myScore = scoreOf(current);
+  const [today, yest] = await Promise.all([
+    fetchDailyStats(dayStr),
+    fetchDailyStats(dateStr(addDays(WEEK_DATES[current], -1)))
+  ]);
+
+  let html = "";
+
+  if (today && today.players >= MIN_PLAYERS) {
+    const solvedPct = Math.round(100 * today.solved / today.players);
+    html += '<div class="stats-title">How everyone did today</div>';
+    html += '<div class="stats-line"><b>' + solvedPct + '%</b> of ' + today.players +
+            ' players solved it</div>';
+    const dist = [today.s2, today.s3, today.s4, today.s5];
+    for (let i = 0; i < 4; i++) {
+      html += barRow(i + 2, dist[i], today.players, myScore === i + 2);
+    }
+    if (myScore) {
+      const better = dist.slice(0, myScore - 2).reduce((a, b) => a + b, 0);
+      const pctBetter = Math.round(100 * better / today.players);
+      html += '<div class="stats-you">You got it in <b>' + myScore + '</b> — ' +
+              (pctBetter === 0
+                ? "nobody did better today 🏆"
+                : "only " + pctBetter + "% did better") + '</div>';
+    }
+  } else if (today) {
+    html += '<div class="stats-title">How everyone did today</div>';
+    html += '<div class="stats-line">Only ' + today.players +
+            (today.players === 1 ? " player" : " players") +
+            ' so far — you\'re early 🌱</div>';
+  }
+
+  // yesterday: the global number plus a reminder of your own result
+  const yDay = dateStr(addDays(WEEK_DATES[current], -1));
+  const yMine = results[yDay];
+  if ((yest && yest.players >= MIN_PLAYERS) || yMine) {
+    html += '<div class="stats-sep"></div>';
+    html += '<div class="stats-title">Yesterday</div>';
+    if (yest && yest.players >= MIN_PLAYERS) {
+      const yPct = Math.round(100 * yest.solved / yest.players);
+      html += '<div class="stats-line"><b>' + yPct + '%</b> of ' + yest.players +
+              ' players solved it</div>';
+    }
+    if (yMine) {
+      html += '<div class="stats-you">' +
+        (yMine.st === "solved"
+          ? "You got it in <b>" + yMine.sc + "</b> ✅"
+          : "You didn't get that one 🙈") + '</div>';
+    } else {
+      html += '<div class="stats-you">You didn\'t play yesterday</div>';
+    }
+  }
+
+  if (html) {
+    box.innerHTML = html;
+    box.classList.add("show");
+  }
+}
+
 function renderResult() {
   const p = puzzleFor(current);
   const st = statusOf(current), sc = scoreOf(current);
@@ -612,6 +773,7 @@ function renderResult() {
   $("factBox").textContent = "💡 " + p.fact;
   $("sharePreview").style.display = "none";
   $("shareBtn").textContent = inTelegram ? "📣 Challenge your friends" : "📋 Copy share card";
+  renderStats();   // async — fills in once the numbers arrive
 }
 
 function renderWeekScore() {
@@ -679,6 +841,8 @@ function handleGuess() {
     track("solve", { theme: DATA.themes[current].day, n: dayNumber(WEEK_DATES[current]), score: s.revealed, streak: streak });
     if (tg && tg.HapticFeedback) { try { tg.HapticFeedback.notificationOccurred("success"); } catch(e) {} }
     render();
+    // the solve was just posted; re-pull the numbers so the player is included
+    setTimeout(renderStats, 1200);
   } else {
     $("card").classList.remove("shake");
     void $("card").offsetWidth;
