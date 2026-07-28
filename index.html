@@ -683,7 +683,7 @@ function trackStartOnce() {
   const k = dateStr(WEEK_DATES[current]);
   if (startedTracked[k]) return;
   startedTracked[k] = true;
-  track("start", { theme: DATA.themes[current].day, n: dayNumber(WEEK_DATES[current]) });
+  track("start", { theme: DATA.themes[current].day });
 }
 
 // ---- streak ----
@@ -820,18 +820,18 @@ function buildShareText() {
   const t = DATA.themes[current];
   const st = statusOf(current), sc = scoreOf(current);
   const teaser = p.emojis.slice(0, DATA.startRevealed).join("") + "❓".repeat(p.emojis.length - DATA.startRevealed);
-  const n = dayNumber(WEEK_DATES[current]);
-  const numLabel = n > 0 ? `#${n}` : "(preview)";
   let line;
   if (st === "solved") {
-    line = `Got it in ${NUM_EMOJI[sc]}/${NUM_EMOJI[5]} — can you beat me?`;
+    line = sc === 2
+      ? `Got it with only ${NUM_EMOJI[sc]} hints — can you beat me?`
+      : `Got it with ${NUM_EMOJI[sc]} hints — can you beat me?`;
   } else {
     line = "🙈 Stumped me today — can you get it?";
   }
   const streakLine = (st === "solved" && streak > 1) ? `\n🔥 ${streak}-day streak` : "";
   // Telegram players get the group link too — their friends are on Telegram.
   const groupLine = (inTelegram && GROUP_URL) ? `\n\nDaily puzzle group: ${GROUP_URL}` : "";
-  return `Emojigram ${numLabel} · ${t.icon} ${t.theme}\n${teaser}\n${line}${streakLine}${groupLine}`;
+  return `Emojigram · ${t.icon} ${t.theme}\n${teaser}\n${line}${streakLine}${groupLine}`;
 }
 
 // ---- global stats: how everyone did, from every channel ----
@@ -976,8 +976,6 @@ function render(justRevealedIdx) {
   document.documentElement.style.setProperty("--accent", t.color);
   $("themeName").textContent = `${t.icon} ${t.theme}`;
   $("themeName").style.background = t.color;
-  const n = dayNumber(WEEK_DATES[current]);
-  // puzzle number stays out of the UI (still used in share cards)
   $("puzzleNum").textContent = "";
   renderTabs();
   renderTiles(justRevealedIdx);
@@ -1022,7 +1020,7 @@ function handleGuess() {
   if (isCorrect(guess, p)) {
     saveResult(WEEK_DATES[current], "solved", s.revealed);
     if (current === WEEKDAY) recordSolve();   // only today's puzzle feeds the streak
-    track("solve", { theme: DATA.themes[current].day, n: dayNumber(WEEK_DATES[current]), score: s.revealed, streak: streak });
+    track("solve", { theme: DATA.themes[current].day, score: s.revealed, streak: streak });
     if (tg && tg.HapticFeedback) { try { tg.HapticFeedback.notificationOccurred("success"); } catch(e) {} }
     render();
     // the solve was just posted; re-pull the numbers so the player is included
@@ -1050,7 +1048,7 @@ $("guessInput").addEventListener("keydown", e => { if (e.key === "Enter") handle
 $("hintBtn").onclick = () => { trackStartOnce(); reveal(); };
 $("giveupBtn").onclick = () => {
   saveResult(WEEK_DATES[current], "failed", null);
-  track("fail", { theme: DATA.themes[current].day, n: dayNumber(WEEK_DATES[current]) });
+  track("fail", { theme: DATA.themes[current].day });
   render();
 };
 
@@ -1058,7 +1056,6 @@ $("giveupBtn").onclick = () => {
 function trackShare(where) {
   track("share", {
     theme: DATA.themes[current].day,
-    n: dayNumber(WEEK_DATES[current]),
     solved: statusOf(current) === "solved",
     via: where
   });
