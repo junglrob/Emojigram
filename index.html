@@ -3,443 +3,119 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Emojigram — Daily Emoji Puzzle</title>
-<meta name="description" content="Guess the movie, song, place or saying from emoji clues. New puzzle every day — solve it in as few emojis as you can.">
-<link rel="canonical" href="https://emojigram.iynynstudios.com/">
-
-<!-- Link preview (Facebook, iMessage, WhatsApp, Slack, LinkedIn) -->
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="Emojigram">
-<meta property="og:url" content="https://emojigram.iynynstudios.com/">
-<meta property="og:title" content="Emojigram — the daily emoji puzzle">
-<meta property="og:description" content="🚲🌕❓❓❓ Guess it in as few emojis as you can. New puzzle every day: movies, songs, places, TV, famous people, sayings and stories.">
-<meta property="og:image" content="https://emojigram.iynynstudios.com/og-image.png">
-<meta property="og:image:width" content="640">
-<meta property="og:image:height" content="360">
-<meta property="og:image:alt" content="Emojigram — two emoji tiles revealed, three hidden">
-
-<!-- Twitter/X -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Emojigram — the daily emoji puzzle">
-<meta name="twitter:description" content="🚲🌕❓❓❓ Guess it in as few emojis as you can. A new puzzle every day.">
-<meta name="twitter:image" content="https://emojigram.iynynstudios.com/og-image.png">
-
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<title>Emojigram</title>
 <style>
   :root {
-    --bg1: #1a1a2e;
-    --bg2: #16213e;
-    --card: #ffffff;
-    --ink: #1f2430;
-    --muted: #8a90a0;
-    --accent: #e94560;
-    --tile: #f0f2f7;
-    --tile-hidden: #e2e5ee;
-    --green: #27ae60;
+    --bg1: #1a1a2e; --bg2: #16213e;
+    --card: #ffffff; --ink: #1f2430; --muted: #8a90a0;
+    --accent: #e94560; --tile: #f0f2f7; --tile-hidden: #e2e5ee; --green: #27ae60;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
   body {
     font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
     background: linear-gradient(160deg, var(--bg1), var(--bg2));
-    min-height: 100vh;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 24px 12px;
-    color: var(--ink);
+    display: flex; align-items: flex-start; justify-content: center;
+    padding: 16px 12px; color: var(--ink);
   }
   .app { width: 100%; max-width: 440px; }
 
-  .brand { text-align: center; color: #fff; margin-bottom: 10px; }
-  .brand h1 { font-size: 28px; letter-spacing: 1px; }
+  .brand { text-align: center; color: #fff; margin-bottom: 8px; }
+  .brand h1 { font-size: 24px; letter-spacing: 1px; }
   .brand h1 span { color: var(--accent); }
-  .brand p { color: #aab; font-size: 13px; margin-top: 2px; }
+  .brand p { color: #aab; font-size: 12px; margin-top: 2px; }
 
-  .streak-bar {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 14px;
-    min-height: 4px;
-  }
+  .streak-bar { display: flex; justify-content: center; margin-bottom: 12px; min-height: 4px; }
   .streak-badge {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    gap: 9px;
-    padding: 9px 18px 9px 14px;
-    border-radius: 16px;
+    position: relative; display: inline-flex; align-items: center; gap: 9px;
+    padding: 8px 16px 8px 12px; border-radius: 16px;
     background: linear-gradient(135deg, #ff9500, #ff5722 55%, #e0342b);
-    box-shadow: 0 4px 18px rgba(255, 106, 0, 0.45),
-                inset 0 1px 0 rgba(255,255,255,0.35);
+    box-shadow: 0 4px 18px rgba(255,106,0,.45), inset 0 1px 0 rgba(255,255,255,.35);
     color: #fff;
-    animation: streakIn .45s ease;
   }
-  /* flickering glow behind the badge */
   .streak-badge::before {
-    content: "";
-    position: absolute;
-    inset: -6px;
-    border-radius: 22px;
-    background: radial-gradient(ellipse at center,
-                rgba(255,150,0,0.55), rgba(255,80,0,0) 70%);
-    z-index: -1;
-    animation: flicker 2.2s ease-in-out infinite;
+    content: ""; position: absolute; inset: -6px; border-radius: 22px;
+    background: radial-gradient(ellipse at center, rgba(255,150,0,.55), rgba(255,80,0,0) 70%);
+    z-index: -1; animation: flicker 2.2s ease-in-out infinite;
   }
   .streak-flame {
-    font-size: 24px;
-    line-height: 1;
+    font-size: 22px; line-height: 1;
     animation: flameDance 1.6s ease-in-out infinite;
-    filter: drop-shadow(0 0 6px rgba(255, 220, 120, 0.9));
+    filter: drop-shadow(0 0 6px rgba(255,220,120,.9));
   }
-  .streak-num {
-    font-size: 22px;
-    font-weight: 800;
-    line-height: 1;
-    letter-spacing: -0.5px;
-  }
+  .streak-num { font-size: 20px; font-weight: 800; line-height: 1; }
   .streak-word {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .8px;
-    opacity: .92;
-    line-height: 1.2;
-    max-width: 110px;
+    font-size: 9px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .8px; opacity: .92; line-height: 1.2; max-width: 105px;
   }
   .streak-stack { display: flex; flex-direction: column; align-items: flex-start; }
-  @keyframes flameDance {
-    0%, 100% { transform: scale(1) rotate(-3deg); }
-    50%      { transform: scale(1.14) rotate(3deg); }
-  }
-  @keyframes flicker {
-    0%, 100% { opacity: .85; transform: scale(1); }
-    45%      { opacity: 1;   transform: scale(1.06); }
-    70%      { opacity: .75; transform: scale(0.98); }
-  }
-  @keyframes streakIn {
-    0%   { transform: scale(0.6); opacity: 0; }
-    60%  { transform: scale(1.08); }
-    100% { transform: scale(1); opacity: 1; }
-  }
+  @keyframes flameDance { 0%,100% { transform: scale(1) rotate(-3deg);} 50% { transform: scale(1.14) rotate(3deg);} }
+  @keyframes flicker { 0%,100% { opacity:.85; transform:scale(1);} 45% { opacity:1; transform:scale(1.06);} 70% { opacity:.75; transform:scale(.98);} }
 
-  .days { display: flex; gap: 5px; margin-bottom: 14px; }
-  .day-tab {
-    flex: 1;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 10px;
-    padding: 8px 2px;
-    text-align: center;
-    cursor: pointer;
-    color: #ccd;
-    font-size: 11px;
-    transition: all .15s;
-    position: relative;
-  }
-  .day-tab .demoji { font-size: 18px; display: block; margin-bottom: 2px; }
-  .day-tab.active { background: #fff; color: var(--ink); font-weight: 600; }
-  .day-tab.locked { opacity: 0.45; cursor: default; }
-  .day-tab.today::after {
-    content: "";
-    position: absolute; top: 4px; right: 4px;
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--accent);
-  }
-  .day-tab.done-solved .demoji::after { content: " ✔"; font-size: 10px; color: var(--green); }
+  .card { background: var(--card); border-radius: 18px; padding: 20px 18px;
+          box-shadow: 0 12px 40px rgba(0,0,0,.35); }
+  .theme-name { display:inline-block; font-weight: 700; font-size: 16px;
+                padding: 4px 12px; border-radius: 999px; color:#fff; margin-bottom: 12px; }
 
-  .card {
-    background: var(--card);
-    border-radius: 18px;
-    padding: 22px 20px;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.35);
-  }
-  .theme-banner { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-  .theme-name { font-weight: 700; font-size: 17px; padding: 4px 12px; border-radius: 999px; color: #fff; }
-  .puzzle-num { color: var(--muted); font-size: 13px; }
-
-  .tiles { display: flex; gap: 8px; justify-content: center; margin: 8px 0 18px; }
+  .tiles { display: flex; gap: 8px; justify-content: center; margin: 6px 0 16px; }
   .tile {
-    width: 64px; height: 64px;
-    border-radius: 14px;
-    background: var(--tile);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 34px;
-    transition: transform .2s;
+    width: 60px; height: 60px; border-radius: 14px; background: var(--tile);
+    display: flex; align-items: center; justify-content: center; font-size: 32px;
   }
-  .tile.hidden-tile { background: var(--tile-hidden); color: #b9bdcc; font-size: 24px; }
+  .tile.hidden-tile { background: var(--tile-hidden); color: #b9bdcc; font-size: 22px; }
   .tile.just-revealed { animation: pop .35s ease; }
-  @keyframes pop {
-    0% { transform: scale(0.3) rotate(-12deg); }
-    70% { transform: scale(1.15); }
-    100% { transform: scale(1); }
-  }
+  @keyframes pop { 0% { transform: scale(.3) rotate(-12deg);} 70% { transform: scale(1.15);} 100% { transform: scale(1);} }
 
   .guess-row { display: flex; gap: 8px; }
   .guess-row input {
-    flex: 1;
-    padding: 12px 14px;
-    border: 2px solid #dfe3ec;
-    border-radius: 12px;
-    font-size: 15px;
-    outline: none;
+    flex: 1; padding: 12px 14px; border: 2px solid #dfe3ec;
+    border-radius: 12px; font-size: 15px; outline: none;
   }
   .guess-row input:focus { border-color: var(--accent); }
   .guess-row button {
-    padding: 12px 18px;
-    border: none;
-    border-radius: 12px;
-    background: var(--accent);
-    color: #fff;
-    font-weight: 700;
-    font-size: 15px;
-    cursor: pointer;
+    padding: 12px 18px; border: none; border-radius: 12px;
+    background: var(--accent); color:#fff; font-weight: 700; font-size: 15px; cursor: pointer;
   }
-  .guess-row button:active { transform: scale(0.97); }
-
-  .aux-row { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; min-height: 24px; }
-  .hint-btn, .giveup-btn {
-    background: none; border: none; color: var(--muted);
-    font-size: 13px; cursor: pointer; text-decoration: underline;
-  }
-  .giveup-btn { color: #c0392b; display: none; }
+  .aux-row { display:flex; justify-content:space-between; align-items:center;
+             margin-top: 10px; min-height: 22px; }
+  .giveup-btn { background:none; border:none; color:#c0392b; font-size:13px;
+                cursor:pointer; text-decoration:underline; display:none; }
   .feedback { font-size: 13px; color: #c0392b; font-weight: 600; }
 
   .shake { animation: shake .4s; }
-  @keyframes shake {
-    0%,100% { transform: translateX(0); }
-    20% { transform: translateX(-8px); }
-    40% { transform: translateX(8px); }
-    60% { transform: translateX(-5px); }
-    80% { transform: translateX(5px); }
-  }
+  @keyframes shake { 0%,100%{transform:translateX(0);} 20%{transform:translateX(-8px);}
+                     40%{transform:translateX(8px);} 60%{transform:translateX(-5px);} 80%{transform:translateX(5px);} }
 
-  .result { display: none; text-align: center; margin-top: 6px; }
-  .result .big { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
-  .result-sub {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--muted);
-    margin-top: 3px;
-  }
-  .result .answer-line {
-    font-size: 15px;
-    margin-bottom: 10px;
-  }
-  .answer-label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--muted);
-    font-weight: 700;
-    margin-bottom: 2px;
-  }
-  .answer-text {
-    font-size: 26px;
-    font-weight: 800;
-    line-height: 1.15;
-    color: var(--ink);
-    margin-bottom: 12px;
-  }
-  .result .fact {
-    background: var(--tile);
-    border-radius: 12px;
-    padding: 10px 14px;
-    font-size: 13px;
-    color: #555c6e;
-    margin-bottom: 14px;
-    text-align: left;
-  }
-  .share-btn {
-    width: 100%;
-    padding: 13px;
-    border: none;
-    border-radius: 12px;
-    background: var(--green);
-    color: #fff;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-  }
-  .share-preview {
-    margin-top: 12px;
-    background: #f7f8fb;
-    border: 1px dashed #ccd2e0;
-    border-radius: 12px;
-    padding: 12px;
-    font-size: 13px;
-    white-space: pre-wrap;
-    text-align: left;
-    display: none;
-  }
-  .share-grid {
-    display: none;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    margin-top: 10px;
-  }
-  .share-grid.open { display: grid; }
-  .sbtn {
-    border: none;
-    border-radius: 12px;
-    padding: 9px 4px 7px;
-    font-size: 10px;
-    font-weight: 600;
-    color: #fff;
-    cursor: pointer;
-    line-height: 1.5;
-    transition: transform .12s;
-  }
-  .sbtn:active { transform: scale(0.94); }
-  .sbtn .ic { display: block; font-size: 19px; margin-bottom: 1px; }
-  .s-fb { background: #1877f2; }
-  .s-tg { background: #229ed9; }
-  .s-wa { background: #25d366; }
-  .s-x  { background: #16181c; }
-  .s-rd { background: #ff4500; }
-  .s-em { background: #6b7280; }
-  .s-cp { background: #4b5563; }
-  .s-ig { background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); }
-  .share-tip {
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 8px;
-    line-height: 1.4;
-  }
+  .result { display:none; text-align:center; margin-top: 4px; }
+  .result .big { font-size: 19px; font-weight: 800; }
+  .result-sub { font-size: 12px; font-weight: 600; color: var(--muted); margin-top: 3px; }
+  .answer-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+                  color: var(--muted); font-weight: 700; margin-top: 10px; }
+  .answer-text { font-size: 24px; font-weight: 800; line-height: 1.15; margin-bottom: 12px; }
+  .fact { background: var(--tile); border-radius: 12px; padding: 10px 14px;
+          font-size: 12.5px; color:#555c6e; margin-bottom: 12px; text-align:left; }
 
-  /* global stats on the result screen */
-  .stats-box {
-    display: none;
-    background: var(--tile);
-    border-radius: 12px;
-    padding: 12px 14px;
-    margin-bottom: 12px;
-    text-align: left;
-  }
-  .stats-box.show { display: block; }
-  .stats-title {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: .5px;
-    color: var(--muted);
-    font-weight: 700;
-    margin-bottom: 8px;
-  }
-  .stats-line {
-    font-size: 13px;
-    color: #47506b;
-    margin-bottom: 4px;
-  }
+  .stats-box { background: var(--tile); border-radius: 12px; padding: 12px 14px;
+               margin-bottom: 12px; text-align:left; display:none; }
+  .stats-box.show { display:block; }
+  .stats-title { font-size:10px; text-transform:uppercase; letter-spacing:.5px;
+                 color:var(--muted); font-weight:700; margin-bottom:6px; }
+  .stats-line { font-size:12.5px; color:#47506b; margin-bottom:4px; }
   .stats-line b { color: var(--ink); }
-  .stats-caption {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: .5px;
-    color: var(--muted);
-    margin: 8px 0 4px;
-  }
-  .bar-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 3px;
-    font-size: 12px;
-  }
-  .bar-row .lab { width: 14px; color: var(--muted); flex: none; }
-  .bar-track {
-    flex: 1;
-    height: 14px;
-    background: #dfe3ee;
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  .bar-fill {
-    height: 100%;
-    border-radius: 4px;
-    background: var(--accent);
-    transition: width .5s ease;
-    min-width: 2px;
-  }
+  .stats-caption { font-size:9.5px; text-transform:uppercase; letter-spacing:.5px;
+                   color:var(--muted); margin:8px 0 4px; }
+  .bar-row { display:flex; align-items:center; gap:8px; margin-bottom:3px; font-size:12px; }
+  .bar-row .lab { width:12px; color:var(--muted); flex:none; }
+  .bar-track { flex:1; height:13px; background:#dfe3ee; border-radius:4px; overflow:hidden; }
+  .bar-fill { height:100%; border-radius:4px; background:var(--accent); transition:width .5s ease; }
   .bar-fill.you { background: var(--green); }
-  .bar-row .pct { width: 34px; text-align: right; color: #5a6178; flex: none; }
-  .stats-sep {
-    border-top: 1px solid #dbe0ec;
-    margin: 10px 0 8px;
-  }
-  .stats-you {
-    font-size: 12px;
-    color: #47506b;
-    margin-top: 2px;
-  }
+  .bar-row .pct { width:32px; text-align:right; color:#5a6178; flex:none; }
+  .stats-sep { border-top:1px solid #dbe0ec; margin:10px 0 8px; }
+  .stats-you { font-size:11.5px; color:#47506b; margin-top:2px; }
 
-  /* join-the-group row */
-  .group-row {
-    display: none;
-    gap: 6px;
-    margin-top: 10px;
-  }
-  .group-row.show { display: flex; }
-  .group-join {
-    flex: 1;
-    display: block;
-    padding: 10px;
-    border-radius: 12px;
-    background: #229ed9;
-    color: #fff;
-    font-size: 14px;
-    font-weight: 600;
-    text-decoration: none;
-    text-align: center;
-  }
-  .group-join:active { transform: scale(0.98); }
-  .group-copy {
-    flex: none;
-    width: 44px;
-    border: none;
-    border-radius: 12px;
-    background: #dfe3ee;
-    font-size: 16px;
-    cursor: pointer;
-  }
-  .group-copy:active { transform: scale(0.94); }
-
-  /* daily calendar reminder */
-  .remind-row {
-    display: none;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 8px;
-    font-size: 12px;
-    color: var(--muted);
-  }
-  .remind-row.show { display: flex; }
-  .remind-row input[type="time"] {
-    border: 1px solid #dfe3ec;
-    border-radius: 8px;
-    padding: 4px 6px;
-    font-size: 12px;
-    font-family: inherit;
-    color: var(--ink);
-  }
-  .remind-btn {
-    border: none;
-    background: #eef1f7;
-    color: #47506b;
-    border-radius: 8px;
-    padding: 5px 10px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  .remind-btn:active { transform: scale(0.96); }
-
-  .locked-box { display: none; text-align: center; padding: 10px 0 4px; }
-  .locked-box .big-lock { font-size: 40px; margin-bottom: 8px; }
-  .locked-box p { color: var(--muted); font-size: 14px; }
-
-  .week-score { text-align: center; color: #99a; font-size: 12px; margin-top: 14px; }
-  .disclaimer { text-align: center; color: #667; font-size: 11px; margin-top: 6px; }
+  .share-btn { width:100%; padding:12px; border:none; border-radius:12px;
+               background:var(--green); color:#fff; font-size:15px; font-weight:700; cursor:pointer; }
+  .loading { text-align:center; color:#aab; padding: 30px 0; font-size: 14px; }
 </style>
 </head>
 <body>
@@ -451,863 +127,203 @@
 
   <div class="streak-bar" id="streakBar"></div>
 
-  <div class="days" id="dayTabs"></div>
+  <div class="card">
+    <div id="loading" class="loading">Loading today's puzzle…</div>
 
-  <div class="card" id="card">
-    <div class="theme-banner">
+    <div id="game" style="display:none">
       <div class="theme-name" id="themeName"></div>
-      <div class="puzzle-num" id="puzzleNum"></div>
-    </div>
+      <div class="tiles" id="tiles"></div>
 
-    <div class="tiles" id="tiles"></div>
-
-    <div id="playArea">
-      <div class="guess-row">
-        <input type="text" id="guessInput" placeholder="Type your guess..." autocomplete="off">
-        <button id="guessBtn">Guess</button>
+      <div id="playArea">
+        <div class="guess-row">
+          <input type="text" id="guessInput" placeholder="Type your guess..." autocomplete="off">
+          <button id="guessBtn">Guess</button>
+        </div>
+        <div class="aux-row">
+          <button class="giveup-btn" id="giveupBtn">Give up</button>
+          <div class="feedback" id="feedback"></div>
+        </div>
       </div>
-      <div class="aux-row">
-        <button class="hint-btn" id="hintBtn">Reveal a hint 👀</button>
-        <button class="giveup-btn" id="giveupBtn">Give up</button>
-        <div class="feedback" id="feedback"></div>
-      </div>
-    </div>
 
-    <div class="locked-box" id="lockedBox">
-      <div class="big-lock">🔒</div>
-      <p id="lockedText"></p>
-    </div>
-
-    <div class="result" id="result">
-      <div class="big" id="resultBig"></div>
-      <div class="answer-line" id="answerLine"></div>
-      <div class="fact" id="factBox"></div>
-      <div class="stats-box" id="statsBox"></div>
-      <button class="share-btn" id="shareBtn">📣 Share with your friends</button>
-      <div class="share-grid" id="shareGrid"></div>
-      <div class="share-tip" id="shareTip"></div>
-      <div class="share-preview" id="sharePreview"></div>
-      <div class="group-row" id="groupRow">
-        <a class="group-join" id="groupJoin" href="#" target="_blank" rel="noopener">💬 Join the daily Emojigram group on Telegram</a>
-        <button class="group-copy" id="groupCopy" title="Copy group link">🔗</button>
-      </div>
-      <div class="remind-row" id="remindRow">
-        <span class="remind-label">⏰ Daily reminder at</span>
-        <input type="time" id="remindTime" value="08:00">
-        <button class="remind-btn" id="remindBtn">Add to calendar</button>
+      <div class="result" id="result">
+        <div class="big" id="resultBig"></div>
+        <div class="answer-label">The answer was</div>
+        <div class="answer-text" id="answerText"></div>
+        <div class="fact" id="factBox"></div>
+        <div class="stats-box" id="statsBox"></div>
+        <button class="share-btn" id="shareBtn">💬 Post your score in the comments</button>
       </div>
     </div>
-  </div>
-
-  <div class="week-score" id="weekScore"></div>
-  <div class="disclaimer" id="envNote"></div>
-  <div class="disclaimer" style="margin-top:4px;">
-    <a href="privacy.html" style="color:#667;text-decoration:underline;">Privacy</a>
   </div>
 </div>
 
 <script>
-// ====== CONFIG — set this after you register your bot with @BotFather ======
-const BOT_USERNAME = "PlayEmojigramBot"; // no @
-const SITE_URL = "https://emojigram.iynynstudios.com";  // shared when playing on the web
-// Public Telegram group. Set to "" to hide the join prompt entirely.
-const GROUP_URL = "https://t.me/emojigramdaily";
-// Analytics (optional — see analytics-setup.md). Leave empty to disable.
-const ANALYTICS_URL = "https://qadqnrjgaurxkyojhjwu.supabase.co";
-const ANALYTICS_KEY = "sb_publishable_r2DisNEjlnfSrMgLewhTYA_vZZd9ld2";
-// ==========================================================================
+const $ = (id) => document.getElementById(id);
+let STATE = null;
 
-// Minimal built-in fallback (used only if puzzles.json can't be fetched,
-// e.g. testing the file directly from disk). Live content comes from puzzles.json.
-const FALLBACK = {
-  version: 0,
-  startDate: "2026-07-27",
-  startRevealed: 2,
-  themes: [
-    { day:"Mon", theme:"Movie Monday", icon:"🎬", color:"#e74c3c", puzzles:[
-      { emojis:["🚲","🌕","👽","☎️","🍬"], answer:"E.T.",
-        accepted:["et","e t","extra terrestrial","the extra terrestrial"],
-        fact:"The flying-bicycle silhouette became Amblin's studio logo." } ] },
-    { day:"Tue", theme:"Tune Tuesday", icon:"🎵", color:"#9b59b6", puzzles:[
-      { emojis:["🏨","🌴","🕯️","🍷","🚪"], answer:"Hotel California",
-        accepted:["hotel california","the hotel california"],
-        fact:"\"You can check out any time you like, but you can never leave.\"" } ] },
-    { day:"Wed", theme:"World Wednesday", icon:"🌍", color:"#2980b9", puzzles:[
-      { emojis:["🦅","🌕","👣","🚀","🇺🇸"], answer:"The Moon Landing",
-        accepted:["moon landing","the moon landing","apollo 11"],
-        fact:"\"The Eagle has landed\" — the lunar module was named Eagle." } ] },
-    { day:"Thu", theme:"Throwback Thursday", icon:"📺", color:"#e67e22", puzzles:[
-      { emojis:["☕","🛋️","⛲","👫","👬"], answer:"Friends",
-        accepted:["friends","friends tv show"],
-        fact:"The fountain in the credits is on a Warner Bros. lot." } ] },
-    { day:"Fri", theme:"Famous Friday", icon:"👑", color:"#f1c40f", puzzles:[
-      { emojis:["🦋","🐝","🥊","👑","🏆"], answer:"Muhammad Ali",
-        accepted:["muhammad ali","muhammed ali","ali","cassius clay"],
-        fact:"\"Float like a butterfly, sting like a bee.\"" } ] },
-    { day:"Sat", theme:"Saying Saturday", icon:"💬", color:"#16a085", puzzles:[
-      { emojis:["1️⃣","🔵","🌕","⏳","✨"], answer:"Once in a Blue Moon",
-        accepted:["once in a blue moon","blue moon"],
-        fact:"A blue moon is the second full moon in one calendar month." } ] },
-    { day:"Sun", theme:"Story Sunday", icon:"📚", color:"#8e6a3f", puzzles:[
-      { emojis:["🌾","🌳","🧱","🐺","🐷"], answer:"The Three Little Pigs",
-        accepted:["three little pigs","the three little pigs"],
-        fact:"Straw, sticks, brick — the materials ARE the plot." } ] }
-  ]
-};
-
-let DATA = FALLBACK;
-const NUM_EMOJI = ["0️⃣","1️⃣","2️⃣","3️⃣","4️⃣","5️⃣"];
-
-// ---- Telegram integration ----
-const tg = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData !== undefined
-  ? window.Telegram.WebApp : null;
-const inTelegram = !!(tg && tg.initDataUnsafe && tg.initDataUnsafe.user);
-if (tg) { try { tg.ready(); tg.expand(); } catch(e) {} }
-
-// ---- persistence: Telegram CloudStorage in-app, localStorage in browser ----
-function storeGet(key) {
-  return new Promise(resolve => {
-    if (inTelegram && tg.CloudStorage) {
-      tg.CloudStorage.getItem(key, (err, val) => resolve(err ? null : val));
-    } else {
-      try { resolve(localStorage.getItem(key)); } catch(e) { resolve(null); }
-    }
+async function api(path, body) {
+  const res = await fetch(path, {
+    method: body ? "POST" : "GET",
+    headers: { "Content-Type": "application/json" },
+    body: body ? JSON.stringify(body) : undefined,
   });
-}
-function storeSet(key, val) {
-  if (inTelegram && tg.CloudStorage) {
-    tg.CloudStorage.setItem(key, val, () => {});
-  } else {
-    try { localStorage.setItem(key, val); } catch(e) {}
-  }
+  return res.json();
 }
 
-// ---- date helpers (local time) ----
-function atMidnight(d) { const x = new Date(d); x.setHours(0,0,0,0); return x; }
-function dateStr(d) {
-  const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,"0"), dd = String(d.getDate()).padStart(2,"0");
-  return `${y}-${m}-${dd}`;
-}
-function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
-
-const TODAY = atMidnight(new Date());
-const WEEKDAY = (TODAY.getDay() + 6) % 7;         // 0=Mon..6=Sun
-const MONDAY = addDays(TODAY, -WEEKDAY);           // this week's Monday
-const WEEK_DATES = Array.from({length: 7}, (_, i) => addDays(MONDAY, i));
-
-function startDate() { return atMidnight(new Date(DATA.startDate + "T00:00:00")); }
-function dayNumber(d) { return Math.round((atMidnight(d) - startDate()) / 864e5) + 1; }
-function weekIndexFor(d, poolSize) {
-  const w = Math.floor((atMidnight(d) - startDate()) / (7 * 864e5));
-  return ((w % poolSize) + poolSize) % poolSize;   // loops content; safe before startDate too
-}
-function puzzleFor(dayIdx) {
-  const theme = DATA.themes[dayIdx];
-  return theme.puzzles[weekIndexFor(WEEK_DATES[dayIdx], theme.puzzles.length)];
-}
-function isLocked(dayIdx) { return WEEK_DATES[dayIdx] > TODAY; }
-
-// ---- analytics (no-op unless configured; stores no personal data) ----
-function getUserId() {
-  if (inTelegram) return "tg_" + tg.initDataUnsafe.user.id;
-  try {
-    let id = localStorage.getItem("emojigram_uid");
-    if (!id) { id = "web_" + Math.random().toString(36).slice(2, 12); localStorage.setItem("emojigram_uid", id); }
-    return id;
-  } catch(e) { return "anon"; }
-}
-// Coarse location: city/country only, never precise coordinates, never asks
-// for GPS permission. Looked up once per browser session and cached.
-let GEO = null;
-function browserRegion() {
-  const o = {};
-  try { o.tz = Intl.DateTimeFormat().resolvedOptions().timeZone; } catch(e) {}
-  try { o.lang = navigator.language; } catch(e) {}
-  return o;
-}
-function loadGeo() {
-  try {
-    const cached = sessionStorage.getItem("emojigram_geo");
-    if (cached) { GEO = JSON.parse(cached); return Promise.resolve(); }
-  } catch(e) {}
-  const timeout = new Promise(res => setTimeout(res, 1500));
-  const lookup = fetch("https://ipwho.is/?fields=success,city,region,country,country_code")
-    .then(r => r.json())
-    .then(j => {
-      if (j && j.success !== false) {
-        GEO = { city: j.city || null, region: j.region || null,
-                country: j.country || null, cc: j.country_code || null };
-        try { sessionStorage.setItem("emojigram_geo", JSON.stringify(GEO)); } catch(e) {}
-      }
-    })
-    .catch(() => {});
-  return Promise.race([lookup, timeout]);
+function renderStreak(n) {
+  $("streakBar").innerHTML = n > 0
+    ? '<div class="streak-badge"><span class="streak-flame">🔥</span>' +
+      '<div class="streak-stack"><span class="streak-num">' + n + '</span>' +
+      '<span class="streak-word">' + (n === 1 ? "day solved" : "days solved in a row") +
+      '</span></div></div>'
+    : "";
 }
 
-// Where did this player arrive from? Telegram passes ?startapp=xxx through as
-// start_param, so the group's daily post can be attributed separately.
-function launchSource() {
-  try {
-    if (inTelegram && tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
-      return String(tg.initDataUnsafe.start_param).slice(0, 24);
-    }
-    const q = new URLSearchParams(location.search).get("src");
-    if (q) return q.slice(0, 24);
-  } catch (e) {}
-  return inTelegram ? "tg" : "web";
-}
-const SRC = launchSource();
-
-function track(event, props) {
-  if (!ANALYTICS_URL || !ANALYTICS_KEY) return;
-  try {
-    const p = Object.assign({}, props || {}, browserRegion(), { src: SRC });
-    if (GEO) {
-      p.city = GEO.city; p.region = GEO.region;
-      p.country = GEO.country; p.cc = GEO.cc;
-    }
-    fetch(ANALYTICS_URL + "/rest/v1/events", {
-      method: "POST",
-      headers: {
-        "apikey": ANALYTICS_KEY,
-        "Authorization": "Bearer " + ANALYTICS_KEY,
-        "Content-Type": "application/json",
-        "Prefer": "return=minimal"
-      },
-      body: JSON.stringify({ user_id: getUserId(), event: event, props: p, day: dateStr(TODAY) })
-    }).catch(() => {});
-  } catch(e) {}
-}
-const startedTracked = {};
-function trackStartOnce() {
-  const k = dateStr(WEEK_DATES[current]);
-  if (startedTracked[k]) return;
-  startedTracked[k] = true;
-  track("start", { theme: DATA.themes[current].day });
-}
-
-// ---- streak ----
-let streak = 0, lastSolveDate = null;
-async function loadStreak() {
-  const raw = await storeGet("emojigram_streak");
-  if (raw) {
-    try {
-      const obj = JSON.parse(raw);
-      streak = obj.streak || 0;
-      lastSolveDate = obj.last || null;
-      if (lastSolveDate && lastSolveDate < dateStr(addDays(TODAY, -1))) streak = 0;
-    } catch(e) {}
-  }
-  renderStreak();
-}
-function recordSolve() {
-  const t = dateStr(TODAY);
-  if (lastSolveDate === t) return;
-  streak = (lastSolveDate === dateStr(addDays(TODAY, -1))) ? streak + 1 : 1;
-  lastSolveDate = t;
-  storeSet("emojigram_streak", JSON.stringify({ streak, last: t }));
-  renderStreak();
-}
-function renderStreak() {
-  const bar = document.getElementById("streakBar");
-  if (streak > 0) {
-    bar.innerHTML =
-      '<div class="streak-badge">' +
-        '<span class="streak-flame">🔥</span>' +
-        '<div class="streak-stack">' +
-          '<span class="streak-num">' + streak + '</span>' +
-          '<span class="streak-word">' +
-            (streak === 1 ? "day solved" : "days solved in a row") + '</span>' +
-        '</div>' +
-      '</div>';
-  } else {
-    bar.innerHTML = "";
-  }
-}
-
-// ---- per-day results (persisted, pruned to 30 days) ----
-let results = {};   // { "2026-08-03": { st: "solved"|"failed", sc: 3 } }
-async function loadResults() {
-  const raw = await storeGet("emojigram_days");
-  if (raw) { try { results = JSON.parse(raw) || {}; } catch(e) {} }
-}
-function saveResult(d, st, sc) {
-  results[dateStr(d)] = { st, sc };
-  const keys = Object.keys(results).sort();
-  while (keys.length > 30) delete results[keys.shift()];
-  storeSet("emojigram_days", JSON.stringify(results));
-}
-
-// ---- session state (revealed count etc. lives per visit; outcomes persist) ----
-const session = Array.from({length: 7}, () => ({ revealed: null, wrongAtFull: 0 }));
-function statusOf(i) {
-  const r = results[dateStr(WEEK_DATES[i])];
-  return r ? r.st : "playing";
-}
-function scoreOf(i) {
-  const r = results[dateStr(WEEK_DATES[i])];
-  return r ? r.sc : null;
-}
-
-let current = WEEKDAY;
-const $ = id => document.getElementById(id);
-
-function normalize(s) {
-  return s.toLowerCase()
-    .normalize("NFD").replace(/[̀-ͯ]/g, "")
-    .replace(/[^a-z0-9 ]/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function levenshtein(a, b) {
-  const m = a.length, n = b.length;
-  if (!m) return n; if (!n) return m;
-  let prev = Array.from({length: n+1}, (_, i) => i);
-  for (let i = 1; i <= m; i++) {
-    const cur = [i];
-    for (let j = 1; j <= n; j++) {
-      cur[j] = Math.min(prev[j] + 1, cur[j-1] + 1, prev[j-1] + (a[i-1] === b[j-1] ? 0 : 1));
-    }
-    prev = cur;
-  }
-  return prev[n];
-}
-
-function isCorrect(guess, puzzle) {
-  const g = normalize(guess);
-  if (!g) return false;
-  return puzzle.accepted.some(a => {
-    const na = normalize(a);
-    if (g === na) return true;
-    const tol = na.length > 6 ? 2 : (na.length > 3 ? 1 : 0);
-    return levenshtein(g, na) <= tol;
-  });
-}
-
-function renderTabs() {
-  const tabs = $("dayTabs");
-  tabs.innerHTML = "";
-  DATA.themes.forEach((t, i) => {
-    const el = document.createElement("div");
-    el.className = "day-tab" + (i === current ? " active" : "") +
-                   (i === WEEKDAY ? " today" : "") +
-                   (isLocked(i) ? " locked" : "") +
-                   (statusOf(i) === "solved" ? " done-solved" : "");
-    el.innerHTML = `<span class="demoji">${isLocked(i) ? "🔒" : t.icon}</span>${t.day}`;
-    el.onclick = () => { current = i; render(); };
-    tabs.appendChild(el);
-  });
-}
-
-function renderTiles(justRevealedIdx) {
-  const p = puzzleFor(current);
+function renderTiles(emojis, total, justRevealed) {
   const wrap = $("tiles");
   wrap.innerHTML = "";
-  const done = statusOf(current) !== "playing";
-  const revealed = session[current].revealed ?? DATA.startRevealed;
-  p.emojis.forEach((e, i) => {
+  for (let i = 0; i < total; i++) {
     const t = document.createElement("div");
-    const show = !isLocked(current) && (done || i < revealed);
-    t.className = "tile" + (show ? "" : " hidden-tile") + (i === justRevealedIdx ? " just-revealed" : "");
-    t.textContent = show ? e : "❓";
+    const shown = i < emojis.length;
+    t.className = "tile" + (shown ? "" : " hidden-tile") + (i === justRevealed ? " just-revealed" : "");
+    t.textContent = shown ? emojis[i] : "❓";
     wrap.appendChild(t);
-  });
-}
-
-function buildShareText() {
-  const p = puzzleFor(current);
-  const t = DATA.themes[current];
-  const st = statusOf(current), sc = scoreOf(current);
-  const teaser = p.emojis.slice(0, DATA.startRevealed).join("") + "❓".repeat(p.emojis.length - DATA.startRevealed);
-  let line;
-  if (st === "solved") {
-    line = sc === 2
-      ? `Got it with only ${NUM_EMOJI[sc]} hints — can you beat me?`
-      : `Got it with ${NUM_EMOJI[sc]} hints — can you beat me?`;
-  } else {
-    line = "🙈 Stumped me today — can you get it?";
   }
-  const streakLine = (st === "solved" && streak > 1) ? `\n🔥 ${streak}-day streak` : "";
-  // Telegram players get the group link too — their friends are on Telegram.
-  const groupLine = (inTelegram && GROUP_URL) ? `\n\nDaily puzzle group: ${GROUP_URL}` : "";
-  return `Emojigram · ${t.icon} ${t.theme}\n${teaser}\n${line}${streakLine}${groupLine}`;
 }
-
-// ---- global stats: how everyone did, from every channel ----
-const statsCache = {};
-async function fetchDailyStats(dayStr) {
-  if (!ANALYTICS_URL || !ANALYTICS_KEY) return null;
-  // past days are settled, so cache them; today keeps changing, so don't
-  const isToday = dayStr === dateStr(TODAY);
-  if (!isToday && statsCache[dayStr] !== undefined) return statsCache[dayStr];
-  try {
-    const r = await fetch(ANALYTICS_URL + "/rest/v1/rpc/daily_stats", {
-      method: "POST",
-      headers: {
-        apikey: ANALYTICS_KEY,
-        Authorization: "Bearer " + ANALYTICS_KEY,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ d: dayStr })
-    });
-    const j = await r.json();
-    statsCache[dayStr] = (j && typeof j.players === "number") ? j : null;
-  } catch (e) {
-    statsCache[dayStr] = null;
-  }
-  return statsCache[dayStr];
-}
-
-const MIN_PLAYERS = 3;   // below this the percentages are meaningless
 
 function barRow(score, count, total, isYou) {
   const pct = total ? Math.round(100 * count / total) : 0;
-  return '<div class="bar-row">' +
-           '<div class="lab">' + score + '</div>' +
-           '<div class="bar-track"><div class="bar-fill' + (isYou ? " you" : "") +
-             '" style="width:' + Math.max(pct, count ? 3 : 0) + '%"></div></div>' +
-           '<div class="pct">' + pct + '%</div>' +
-         '</div>';
+  return '<div class="bar-row"><div class="lab">' + score + '</div>' +
+         '<div class="bar-track"><div class="bar-fill' + (isYou ? " you" : "") +
+         '" style="width:' + Math.max(pct, count ? 3 : 0) + '%"></div></div>' +
+         '<div class="pct">' + pct + '%</div></div>';
 }
 
-async function renderStats() {
+function renderStats(stats, myScore, yesterday) {
   const box = $("statsBox");
-  box.classList.remove("show");
-  box.innerHTML = "";
-
-  const dayStr = dateStr(WEEK_DATES[current]);
-  const myScore = scoreOf(current);
-  const [today, yest] = await Promise.all([
-    fetchDailyStats(dayStr),
-    fetchDailyStats(dateStr(addDays(WEEK_DATES[current], -1)))
-  ]);
-
   let html = "";
+  const MIN = 3;
 
-  if (today && today.players >= MIN_PLAYERS) {
-    const solvedPct = Math.round(100 * today.solved / today.players);
+  if (stats && stats.players >= MIN) {
+    const pct = Math.round(100 * stats.solved / stats.players);
     html += '<div class="stats-title">How everyone did today</div>';
-    html += '<div class="stats-line"><b>' + solvedPct + '%</b> of players solved it</div>';
+    html += '<div class="stats-line"><b>' + pct + '%</b> of players solved it</div>';
     html += '<div class="stats-caption">Emoji clues needed</div>';
-    const dist = [today.s2, today.s3, today.s4, today.s5];
-    for (let i = 0; i < 4; i++) {
-      html += barRow(i + 2, dist[i], today.players, myScore === i + 2);
-    }
+    const dist = [stats.s2, stats.s3, stats.s4, stats.s5];
+    for (let i = 0; i < 4; i++) html += barRow(i + 2, dist[i], stats.players, myScore === i + 2);
     if (myScore) {
       const better = dist.slice(0, myScore - 2).reduce((a, b) => a + b, 0);
-      const pctBetter = Math.round(100 * better / today.players);
+      const pb = Math.round(100 * better / stats.players);
       html += '<div class="stats-you">You needed <b>' + myScore + '</b> clues — ' +
-              (pctBetter === 0
-                ? "nobody did better today 🏆"
-                : "only " + pctBetter + "% did better") + '</div>';
+              (pb === 0 ? "nobody did better today 🏆" : "only " + pb + "% did better") + '</div>';
     }
-  } else if (today) {
+  } else if (stats) {
     html += '<div class="stats-title">How everyone did today</div>';
-    html += '<div class="stats-line">You\'re early today 🌱 — check back later to see how everyone did</div>';
+    html += '<div class="stats-line">You\'re early today 🌱 — check back later</div>';
   }
 
-  // yesterday: the global number plus a reminder of your own result
-  const yDay = dateStr(addDays(WEEK_DATES[current], -1));
-  const yMine = results[yDay];
-  if ((yest && yest.players >= MIN_PLAYERS) || yMine) {
-    html += '<div class="stats-sep"></div>';
-    html += '<div class="stats-title">Yesterday</div>';
-    if (yest && yest.players >= MIN_PLAYERS) {
-      const yPct = Math.round(100 * yest.solved / yest.players);
-      html += '<div class="stats-line"><b>' + yPct + '%</b> of players solved it</div>';
+  const y = yesterday || {};
+  if ((y.stats && y.stats.players >= MIN) || y.mine) {
+    html += '<div class="stats-sep"></div><div class="stats-title">Yesterday</div>';
+    if (y.stats && y.stats.players >= MIN) {
+      const yp = Math.round(100 * y.stats.solved / y.stats.players);
+      html += '<div class="stats-line"><b>' + yp + '%</b> of players solved it</div>';
     }
-    if (yMine) {
+    if (y.mine) {
       html += '<div class="stats-you">' +
-        (yMine.st === "solved"
-          ? "You needed <b>" + yMine.sc + "</b> clues ✅"
+        (y.mine.status === "solved"
+          ? "You needed <b>" + y.mine.score + "</b> clues ✅"
           : "You didn't get that one 🙈") + '</div>';
     } else {
       html += '<div class="stats-you">You didn\'t play yesterday</div>';
     }
   }
 
-  if (html) {
-    box.innerHTML = html;
-    box.classList.add("show");
-  }
+  if (html) { box.innerHTML = html; box.classList.add("show"); }
+  else { box.classList.remove("show"); }
 }
 
-function renderResult() {
-  const p = puzzleFor(current);
-  const st = statusOf(current), sc = scoreOf(current);
-  $("result").style.display = "block";
-  if (st === "solved") {
-    const flair = sc === 2 ? "🏆 ELITE!" : sc === 3 ? "🔥 Sharp!" : sc === 4 ? "👏 Nice!" : "✅ Got there!";
-    const howMany = sc === 2 ? "just 2 emoji clues" : sc + " emoji clues";
-    $("resultBig").innerHTML =
-      flair + '<div class="result-sub">Solved with ' + howMany + '</div>';
-  } else {
-    $("resultBig").innerHTML =
-      '🙈 Stumped!<div class="result-sub">All 5 clues and it still got away</div>';
-  }
-  // The five emojis are already shown as tiles above — no need to repeat them.
-  $("answerLine").innerHTML =
-    '<div class="answer-label">The answer was</div>' +
-    '<div class="answer-text">' + p.answer + '</div>';
-  $("factBox").textContent = "💡 " + p.fact;
-  $("sharePreview").style.display = "none";
-  $("shareBtn").textContent = "📣 Share with your friends";
-  if (GROUP_URL) $("groupRow").classList.add("show");
-  // Telegram already has its own reminders; the .ics is for web players.
-  if (!inTelegram) $("remindRow").classList.add("show");
-  renderStats();   // async — fills in once the numbers arrive
-}
-
-function renderWeekScore() {
-  let solved = 0, played = 0, total = 0;
-  for (let i = 0; i < 7; i++) {
-    const st = statusOf(i);
-    if (st !== "playing") played++;
-    if (st === "solved") { solved++; total += scoreOf(i); }
-  }
-  $("weekScore").textContent = played
-    ? `This week: ${solved}/${played} solved` + (solved ? ` · total score ${total} (lower is better)` : "")
-    : "One puzzle a day — today is marked with a dot";
-}
-
-function render(justRevealedIdx) {
-  const t = DATA.themes[current];
-  document.documentElement.style.setProperty("--accent", t.color);
-  $("themeName").textContent = `${t.icon} ${t.theme}`;
-  $("themeName").style.background = t.color;
-  $("puzzleNum").textContent = "";
-  renderTabs();
-  renderTiles(justRevealedIdx);
-
+function showResult(status, score, answer, fact, stats) {
   $("playArea").style.display = "none";
-  $("result").style.display = "none";
-  $("lockedBox").style.display = "none";
-
-  if (isLocked(current)) {
-    $("lockedBox").style.display = "block";
-    $("lockedText").textContent = `${t.theme} unlocks ${WEEK_DATES[current].toLocaleDateString(undefined, { weekday: "long" })} — come back!`;
-  } else if (statusOf(current) === "playing") {
-    if (session[current].revealed === null) session[current].revealed = DATA.startRevealed;
-    $("playArea").style.display = "block";
-    $("feedback").textContent = "";
-    $("guessInput").value = "";
-    $("hintBtn").style.display = session[current].revealed < 5 ? "inline" : "none";
-    $("giveupBtn").style.display = (session[current].revealed >= 5 && session[current].wrongAtFull >= 1) ? "inline" : "none";
+  $("result").style.display = "block";
+  if (status === "solved") {
+    const flair = score === 2 ? "🏆 ELITE!" : score === 3 ? "🔥 Sharp!" : score === 4 ? "👏 Nice!" : "✅ Got there!";
+    const how = score === 2 ? "just 2 emoji clues" : score + " emoji clues";
+    $("resultBig").innerHTML = flair + '<div class="result-sub">Solved with ' + how + '</div>';
   } else {
-    renderResult();
+    $("resultBig").innerHTML = '🙈 Stumped!<div class="result-sub">All 5 clues and it still got away</div>';
   }
-  renderWeekScore();
+  $("answerText").textContent = answer;
+  $("factBox").textContent = "💡 " + fact;
+  renderStats(stats, status === "solved" ? score : null, STATE.yesterday);
 }
 
-function reveal() {
-  const s = session[current];
-  if (s.revealed < 5) {
-    s.revealed++;
-    render(s.revealed - 1);
-    return true;
-  }
-  return false;
-}
+async function boot() {
+  STATE = await api("/api/state");
+  $("loading").style.display = "none";
+  $("game").style.display = "block";
 
-function handleGuess() {
-  if (isLocked(current) || statusOf(current) !== "playing") return;
-  const p = puzzleFor(current);
-  const s = session[current];
-  const guess = $("guessInput").value;
-  if (!normalize(guess)) return;
-  trackStartOnce();
-  if (isCorrect(guess, p)) {
-    saveResult(WEEK_DATES[current], "solved", s.revealed);
-    if (current === WEEKDAY) recordSolve();   // only today's puzzle feeds the streak
-    track("solve", { theme: DATA.themes[current].day, score: s.revealed, streak: streak });
-    if (tg && tg.HapticFeedback) { try { tg.HapticFeedback.notificationOccurred("success"); } catch(e) {} }
-    render();
-    // the solve was just posted; re-pull the numbers so the player is included
-    setTimeout(renderStats, 1200);
-  } else {
-    $("card").classList.remove("shake");
-    void $("card").offsetWidth;
-    $("card").classList.add("shake");
-    if (tg && tg.HapticFeedback) { try { tg.HapticFeedback.notificationOccurred("error"); } catch(e) {} }
-    if (s.revealed < 5) {
-      reveal();
-      $("feedback").textContent = "Nope — here's another emoji";
-    } else {
-      s.wrongAtFull++;
-      render();
-      $("feedback").textContent = "Not it — try again";
-    }
-    $("guessInput").value = "";
-    $("guessInput").focus();
+  $("themeName").textContent = STATE.theme.icon + " " + STATE.theme.name;
+  $("themeName").style.background = STATE.theme.color;
+  document.documentElement.style.setProperty("--accent", STATE.theme.color);
+
+  renderStreak(STATE.streak);
+  renderTiles(STATE.emojis, STATE.total);
+
+  if (STATE.status !== "playing") {
+    showResult(STATE.status, STATE.score, STATE.answer, STATE.fact, STATE.stats);
+  } else if (STATE.revealed >= STATE.total) {
+    $("giveupBtn").style.display = "inline";
   }
 }
 
-$("guessBtn").onclick = handleGuess;
-$("guessInput").addEventListener("keydown", e => { if (e.key === "Enter") handleGuess(); });
-$("hintBtn").onclick = () => { trackStartOnce(); reveal(); };
-$("giveupBtn").onclick = () => {
-  saveResult(WEEK_DATES[current], "failed", null);
-  track("fail", { theme: DATA.themes[current].day });
-  render();
-};
+async function submitGuess() {
+  const val = $("guessInput").value.trim();
+  if (!val) return;
+  $("guessInput").value = "";
 
-// ---- sharing ----
-function trackShare(where) {
-  track("share", {
-    theme: DATA.themes[current].day,
-    solved: statusOf(current) === "solved",
-    via: where
-  });
-}
+  const r = await api("/api/guess", { guess: val });
 
-async function copyCard(showPreview) {
-  const webText = buildShareText() + "\n" + SITE_URL;
-  try {
-    await navigator.clipboard.writeText(webText);
-    return true;
-  } catch (e) {
-    if (showPreview) {
-      const prev = $("sharePreview");
-      prev.textContent = webText;
-      prev.style.display = "block";
-    }
-    return false;
-  }
-}
-
-// Networks that support pre-filled web sharing. Instagram and TikTok do not
-// allow it at all — they are reachable only through the device share sheet.
-const NETWORKS = [
-  // Facebook ignores pre-filled text (the old `quote` param is deprecated),
-  // so copy the result first and tell the player to paste it.
-  { key:"fb", cls:"s-fb", ic:"f",  label:"Facebook", copyFirst: true,
-    url: (t,u) => "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(u) },
-  { key:"tg", cls:"s-tg", ic:"✈️", label:"Telegram",
-    url: (t,u) => "https://t.me/share/url?url=" + encodeURIComponent(u) + "&text=" + encodeURIComponent(t) },
-  { key:"wa", cls:"s-wa", ic:"💬", label:"WhatsApp",
-    url: (t,u) => "https://api.whatsapp.com/send?text=" + encodeURIComponent(t + "\n" + u) },
-  { key:"x",  cls:"s-x",  ic:"𝕏",  label:"X",
-    url: (t,u) => "https://twitter.com/intent/tweet?text=" + encodeURIComponent(t) + "&url=" + encodeURIComponent(u) },
-  { key:"rd", cls:"s-rd", ic:"👽", label:"Reddit",
-    url: (t,u) => "https://www.reddit.com/submit?url=" + encodeURIComponent(u) + "&title=" + encodeURIComponent(t.split("\n")[0]) },
-  { key:"em", cls:"s-em", ic:"✉️", label:"Email",
-    url: (t,u) => "mailto:?subject=" + encodeURIComponent("Can you beat my Emojigram score?") + "&body=" + encodeURIComponent(t + "\n" + u) }
-];
-
-function buildShareGrid() {
-  const grid = $("shareGrid");
-  if (grid.dataset.built) return;
-  grid.dataset.built = "1";
-
-  NETWORKS.forEach(function (n) {
-    const b = document.createElement("button");
-    b.className = "sbtn " + n.cls;
-    b.innerHTML = '<span class="ic">' + n.ic + '</span>' + n.label;
-    b.onclick = function () {
-      trackShare(n.key);
-      const text = buildShareText();
-
-      if (n.copyFirst) {
-        // Facebook won't accept our text, so put it on the clipboard to paste.
-        // Start the copy WITHOUT awaiting — awaiting here would consume the
-        // click's user-activation and the popup below would be blocked.
-        copyCard(true).then(function (ok) {
-          $("shareTip").innerHTML = ok
-            ? "📋 <b>Your result is copied</b> — paste it into the Facebook post box " +
-              "(Facebook doesn't allow sites to fill that in for you)."
-            : "👇 Copy the text below, then paste it into your Facebook post.";
-        });
-      }
-
-      window.open(n.url(text, SITE_URL), "_blank", "noopener,width=650,height=550");
-    };
-    grid.appendChild(b);
-  });
-
-  // Instagram / TikTok: no web share endpoint exists, so copy the card for pasting.
-  const ig = document.createElement("button");
-  ig.className = "sbtn s-ig";
-  ig.innerHTML = '<span class="ic">📸</span>IG / TikTok';
-  ig.onclick = async function () {
-    trackShare("ig_copy");
-    const ok = await copyCard(true);
-    ig.innerHTML = ok ? '<span class="ic">✅</span>Copied!' : '<span class="ic">👇</span>Copy below';
-    setTimeout(function () { ig.innerHTML = '<span class="ic">📸</span>IG / TikTok'; }, 2500);
-  };
-  grid.appendChild(ig);
-
-  const cp = document.createElement("button");
-  cp.className = "sbtn s-cp";
-  cp.innerHTML = '<span class="ic">📋</span>Copy';
-  cp.onclick = async function () {
-    trackShare("copy");
-    const ok = await copyCard(true);
-    cp.innerHTML = ok ? '<span class="ic">✅</span>Copied!' : '<span class="ic">👇</span>Below';
-    setTimeout(function () { cp.innerHTML = '<span class="ic">📋</span>Copy'; }, 2500);
-  };
-  grid.appendChild(cp);
-}
-
-$("shareBtn").onclick = async () => {
-  const text = buildShareText();
-
-  // 1. Inside Telegram: native chat picker
-  if (inTelegram) {
-    trackShare("telegram");
-    const url = "https://t.me/" + BOT_USERNAME + "/play";
-    tg.openTelegramLink("https://t.me/share/url?url=" + encodeURIComponent(url) + "&text=" + encodeURIComponent(text));
+  if (r.correct || r.already) {
+    if (r.streak) renderStreak(r.streak);
+    renderTiles(r.emojis, r.emojis.length);
+    showResult(r.already ? r.status : "solved", r.score, r.answer, r.fact, r.stats);
     return;
   }
 
-  // 2. Phones/tablets only: the OS share sheet — Instagram, TikTok, Messages
-  //    and every other installed app, in one tap. Desktop Chrome also exposes
-  //    navigator.share, but its dialog is worse than our own buttons, so we
-  //    check for a touch device rather than just the API.
-  const isTouchDevice =
-    (navigator.maxTouchPoints || 0) > 0 || "ontouchstart" in window;
+  renderTiles(r.emojis, STATE.total, r.revealed - 1);
+  $("feedback").textContent = r.exhausted ? "Not it — try again" : "Nope — here's another emoji";
+  const card = document.querySelector(".card");
+  card.classList.remove("shake"); void card.offsetWidth; card.classList.add("shake");
+  if (r.exhausted) $("giveupBtn").style.display = "inline";
+  $("guessInput").focus();
+}
 
-  if (navigator.share && isTouchDevice) {
-    try {
-      trackShare("native");
-      await navigator.share({ title: "Emojigram", text: text, url: SITE_URL });
-      return;
-    } catch (e) {
-      if (e && e.name === "AbortError") return;   // user dismissed the sheet
-      // any other error: fall through to the buttons
-    }
-  }
-
-  // 3. Desktop: per-network buttons
-  buildShareGrid();
-  $("shareGrid").classList.add("open");
-  $("shareTip").textContent = "Instagram & TikTok don't allow pre-filled posts — tap 📸 to copy the card, then paste it into your story or caption.";
-  $("shareBtn").textContent = "📣 Share with your friends";
+$("guessBtn").onclick = submitGuess;
+$("guessInput").addEventListener("keydown", (e) => { if (e.key === "Enter") submitGuess(); });
+$("giveupBtn").onclick = async () => {
+  const r = await api("/api/giveup", {});
+  renderTiles(r.emojis, r.emojis.length);
+  showResult("failed", null, r.answer, r.fact, r.stats);
 };
 
-// ---- daily calendar reminder (.ics) ----
-// Uses a "floating" time — no timezone attached — so the reminder fires at the
-// chosen local time wherever the person is, and stays correct across DST.
-function pad(n) { return String(n).padStart(2, "0"); }
-
-function buildICS(hh, mm) {
-  const start = new Date();
-  start.setHours(hh, mm, 0, 0);
-  if (start <= new Date()) start.setDate(start.getDate() + 1);   // start tomorrow if today's time has passed
-
-  const d = start.getFullYear() + pad(start.getMonth() + 1) + pad(start.getDate());
-  const t = pad(hh) + pad(mm) + "00";
-  const end = new Date(start.getTime() + 10 * 60000);
-  const te = pad(end.getHours()) + pad(end.getMinutes()) + "00";
-  const stamp = new Date().toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
-  const uid = "emojigram-daily-" + Date.now() + "@iynynstudios.com";
-
-  return [
-    "BEGIN:VCALENDAR",
-    "VERSION:2.0",
-    "PRODID:-//IYNYN Studios//Emojigram//EN",
-    "CALSCALE:GREGORIAN",
-    "METHOD:PUBLISH",
-    "BEGIN:VEVENT",
-    "UID:" + uid,
-    "DTSTAMP:" + stamp,
-    "DTSTART:" + d + "T" + t,
-    "DTEND:" + d + "T" + te,
-    "RRULE:FREQ=DAILY",
-    "SUMMARY:🚲🌕 Emojigram — today's puzzle",
-    "DESCRIPTION:A new emoji puzzle every day. Guess it in as few emojis as you can.\\n\\nPlay: " + SITE_URL,
-    "URL:" + SITE_URL,
-    "TRANSP:TRANSPARENT",
-    "BEGIN:VALARM",
-    "ACTION:DISPLAY",
-    "DESCRIPTION:Today's Emojigram is ready 🚲🌕",
-    "TRIGGER:PT0S",
-    "END:VALARM",
-    "END:VEVENT",
-    "END:VCALENDAR"
-  ].join("\r\n");
-}
-
-if (GROUP_URL !== undefined) {
-  $("remindBtn").onclick = () => {
-    const val = $("remindTime").value || "08:00";
-    const [hh, mm] = val.split(":").map(Number);
-    track("calendar_add", { time: val });
-
-    const ics = buildICS(hh, mm);
-    const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "emojigram-daily-reminder.ics";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 5000);
-
-    const btn = $("remindBtn");
-    btn.textContent = "✅ Added";
-    setTimeout(() => { btn.textContent = "Add to calendar"; }, 3000);
-  };
-}
-
-// ---- join / share the group ----
-if (GROUP_URL) {
-  const joinEl = $("groupJoin");
-  joinEl.href = GROUP_URL;
-  joinEl.onclick = (e) => {
-    track("group_join", { via: inTelegram ? "tg" : "web" });
-    if (inTelegram && tg.openTelegramLink) {
-      e.preventDefault();
-      tg.openTelegramLink(GROUP_URL);   // opens in-app rather than a browser
-    }
-  };
-  $("groupCopy").onclick = async () => {
-    track("group_copy", {});
-    const btn = $("groupCopy");
-    try {
-      await navigator.clipboard.writeText(GROUP_URL);
-      btn.textContent = "✅";
-    } catch {
-      const prev = $("sharePreview");
-      prev.textContent = GROUP_URL;
-      prev.style.display = "block";
-      btn.textContent = "👇";
-    }
-    setTimeout(() => { btn.textContent = "🔗"; }, 2000);
-  };
-}
-
-if (inTelegram) {
-  $("envNote").textContent =
-    `Playing as ${tg.initDataUnsafe.user.first_name} · progress syncs to your Telegram account`;
-} else {
-  // Web players: point them at the Telegram group, which is the better home
-  // for the game — synced streaks, daily post, and other players.
-  $("envNote").innerHTML =
-    'Play on Telegram and join others in the fun — ' +
-    '<a href="' + (GROUP_URL || "#") + '" target="_blank" rel="noopener" ' +
-    'style="color:#7fb5ff;text-decoration:underline;font-weight:600;">' +
-    'get the daily puzzle in your chat 🚲🌕</a>';
-  const gl = $("envNote").querySelector("a");
-  if (gl) gl.onclick = () => track("group_join", { via: "footer" });
-}
-
-// ---- boot: load content, then saved state, then render ----
-(async function init() {
+// Sharing on Reddit means commenting — copy the score card for pasting.
+$("shareBtn").onclick = async () => {
+  const teaser = STATE.emojis.slice(0, 2).join("") + "❓❓❓";
+  const line = STATE.status === "solved" || $("answerText").textContent
+    ? "Got it with " + ($("answerText").dataset.score || "") + " hints"
+    : "";
+  const txt = teaser + "  " + (line || "") + "\n(no spoilers 🤫)";
   try {
-    const resp = await fetch("puzzles.json", { cache: "no-store" });
-    if (resp.ok) {
-      const json = await resp.json();
-      if (json && json.themes && json.themes.length === 7) DATA = json;
-    }
-  } catch(e) { /* fallback content stays */ }
-  await loadResults();
-  await loadStreak();
-  render();                 // draw first, don't make the player wait on analytics
-  await loadGeo();
-  track("open", { tg: inTelegram });
-})();
+    await navigator.clipboard.writeText(txt);
+    $("shareBtn").textContent = "✅ Copied — paste it in the comments";
+  } catch {
+    $("shareBtn").textContent = "Comment your score below 👇";
+  }
+  setTimeout(() => { $("shareBtn").textContent = "💬 Post your score in the comments"; }, 2500);
+};
+
+boot();
 </script>
 </body>
 </html>
