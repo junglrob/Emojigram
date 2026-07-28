@@ -250,7 +250,7 @@
 <script>
 // ====== CONFIG — set this after you register your bot with @BotFather ======
 const BOT_USERNAME = "PlayEmojigramBot"; // no @
-const SITE_URL = "emojigram.iynynstudios.com";  // shared when playing on the web
+const SITE_URL = "https://emojigram.iynynstudios.com";  // shared when playing on the web
 // Analytics (optional — see analytics-setup.md). Leave empty to disable.
 const ANALYTICS_URL = "https://qadqnrjgaurxkyojhjwu.supabase.co";
 const ANALYTICS_KEY = "sb_publishable_r2DisNEjlnfSrMgLewhTYA_vZZd9ld2";
@@ -630,7 +630,8 @@ $("shareBtn").onclick = async () => {
     // On the web, share the website — works for everyone, Telegram or not,
     // and carries the link preview card.
     const prev = $("sharePreview");
-    const webText = text + `\nplay: ${SITE_URL}`;
+    // URL alone on its own line: platforms auto-link it and attach the preview card
+    const webText = text + `\n${SITE_URL}`;
     prev.textContent = webText;
     prev.style.display = "block";
     try {
