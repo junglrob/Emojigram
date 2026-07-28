@@ -422,10 +422,24 @@ function loadGeo() {
   return Promise.race([lookup, timeout]);
 }
 
+// Where did this player arrive from? Telegram passes ?startapp=xxx through as
+// start_param, so the group's daily post can be attributed separately.
+function launchSource() {
+  try {
+    if (inTelegram && tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
+      return String(tg.initDataUnsafe.start_param).slice(0, 24);
+    }
+    const q = new URLSearchParams(location.search).get("src");
+    if (q) return q.slice(0, 24);
+  } catch (e) {}
+  return inTelegram ? "tg" : "web";
+}
+const SRC = launchSource();
+
 function track(event, props) {
   if (!ANALYTICS_URL || !ANALYTICS_KEY) return;
   try {
-    const p = Object.assign({}, props || {}, browserRegion());
+    const p = Object.assign({}, props || {}, browserRegion(), { src: SRC });
     if (GEO) {
       p.city = GEO.city; p.region = GEO.region;
       p.country = GEO.country; p.cc = GEO.cc;
