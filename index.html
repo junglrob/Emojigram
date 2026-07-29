@@ -167,7 +167,15 @@ async function api(path, body) {
     headers: { "Content-Type": "application/json" },
     body: body ? JSON.stringify(body) : undefined,
   });
-  return res.json();
+  const text = await res.text();
+  if (!res.ok) {
+    throw new Error(path + " -> " + res.status + " " + res.statusText + "\n" + text.slice(0, 500));
+  }
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    throw new Error(path + " -> non-JSON response:\n" + text.slice(0, 500));
+  }
 }
 
 function renderStreak(n) {
@@ -259,7 +267,15 @@ function showResult(status, score, answer, fact, stats) {
 }
 
 async function boot() {
-  STATE = await api("/api/state");
+  try {
+    STATE = await api("/api/state");
+  } catch (e) {
+    console.error(e);
+    $("loading").innerHTML =
+      '<div style="color:#f88;text-align:left;white-space:pre-wrap;font:12px/1.4 monospace">' +
+      String(e && e.message || e).replace(/</g, "&lt;") + "</div>";
+    return;
+  }
   $("loading").style.display = "none";
   $("game").style.display = "block";
 
