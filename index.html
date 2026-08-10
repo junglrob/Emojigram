@@ -1170,7 +1170,12 @@ $("shareBtn").onclick = async () => {
   if (navigator.share && isTouchDevice) {
     try {
       trackShare("native");
-      await navigator.share({ title: "Emojigram", text: text, url: SITE_URL });
+      // Send ONE field, not two. Messenger and several other chat apps treat
+      // `text` and `url` as separate payloads and deliver them as two
+      // consecutive messages. Folding the link into the text keeps it to a
+      // single message, and the link still auto-previews in every app that
+      // does link unfurling.
+      await navigator.share({ title: "Emojigram", text: text + "\n" + SITE_URL });
       return;
     } catch (e) {
       if (e && e.name === "AbortError") return;   // user dismissed the sheet
