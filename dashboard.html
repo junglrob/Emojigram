@@ -128,6 +128,16 @@
       <canvas id="themeChart"></canvas>
     </div>
     <div class="panel">
+      <h3>Platform mix</h3>
+      <div class="note">Unique players by surface over the whole period</div>
+      <canvas id="platformChart"></canvas>
+    </div>
+    <div class="panel">
+      <h3>Platform over time</h3>
+      <div class="note">Daily players per surface — watch a new channel take hold</div>
+      <canvas id="platformTrendChart"></canvas>
+    </div>
+    <div class="panel">
       <h3>Where players are — countries</h3>
       <div class="note">Unique players by country (city-level only, no precise location)</div>
       <canvas id="countryChart"></canvas>
@@ -148,6 +158,16 @@ const DAYS_SHOWN = 30;
 // =========================================================================
 
 const THEME_LABELS = { Mon:"🎬 Mon", Tue:"🎵 Tue", Wed:"🌍 Wed", Thu:"📺 Thu", Fri:"👑 Fri", Sat:"💬 Sat", Sun:"📚 Sun" };
+
+// How the `src` tag on each event maps to a human-readable surface.
+// "daily" comes from the Telegram group's morning post (?startapp=daily).
+const PLATFORM_LABELS = {
+  reddit: "🟠 Reddit",
+  tg:     "✈️ Telegram",
+  daily:  "✈️ Telegram (group post)",
+  web:    "🌐 Web"
+};
+const PLATFORM_COLORS = ["#ff4500", "#229ed9", "#4aa8d8", "#2ecc71", "#f1c40f", "#9b59b6", "#8a90b0"];
 const C = { accent:"#e94560", green:"#2ecc71", gold:"#f1c40f", blue:"#3498db", purple:"#9b59b6", muted:"#8a90b0" };
 Chart.defaults.color = "#a8aecb";
 Chart.defaults.borderColor = "rgba(255,255,255,0.07)";
@@ -230,6 +250,8 @@ function aggregate(events) {
   const themes = {};             // theme -> { starts:Set, solves, fails, scoreSum, n }
   const countries = {};          // country -> Set(user)
   const cities = {};             // "city|country" -> Set(user)
+  const platforms = {};          // platform label -> Set(user)
+  const platformDaily = {};      // platform label -> { day -> Set(user) }
   const D = day => perDay[day] ||= { users:new Set(), visitors:new Set(), starters:new Set(), finishers:new Set(), solvers:new Set(), sharers:new Set(), scores:[], fails:0 };
 
   for (const e of events) {
@@ -259,6 +281,15 @@ function aggregate(events) {
       if (p.theme) (themes[p.theme] ||= { starters:new Set(), solves:0, fails:0, scoreSum:0, n:0 }).fails++;
     }
     if (e.event === "share") d.sharers.add(e.user_id);
+
+    // platform — which surface did this play come through?
+    // `src` is set by every build: "reddit" from the Devvit server, "tg" or
+    // "daily" from Telegram, "web" (or a campaign tag) from the browser.
+    if (e.event !== "open") {
+      const label = PLATFORM_LABELS[p.src] || (p.src ? "🔗 " + p.src : "🌐 Web");
+      (platforms[label] ||= new Set()).add(e.user_id);
+      ((platformDaily[label] ||= {})[e.day] ||= new Set()).add(e.user_id);
+    }
 
     // location — attribute each player to the last place we saw them
     if (e.event !== "open") {
@@ -331,7 +362,7 @@ function aggregate(events) {
     streakBuckets[b]++;
   }
 
-  return { perDay, days, churn, retD1: retDen ? 100*retNum/retDen : null, guessDist, failTotal, totals, opens, streakBuckets, themes, countries, cities };
+  return { perDay, days, churn, retD1: retDen ? 100*retNum/retDen : null, guessDist, failTotal, totals, opens, streakBuckets, themes, countries, cities, platforms, platformDaily };
 }
 
 // ---------- render ----------
@@ -431,6 +462,56 @@ function build(agg) {
   const avgGuesses = order.map(t => {
     const th = agg.themes[t]; return th && th.n ? +(th.scoreSum/th.n).toFixed(2) : null;
   });
+  // --- platform panels ---
+  const platRows = Object.entries(agg.platforms)
+    .map(([k, v]) => [k, v.size]).sort((a, b) => b[1] - a[1]);
+
+  new Chart(platformChart, {
+    type: "doughnut",
+    data: {
+      labels: platRows.length ? platRows.map(r => r[0]) : ["No data yet"],
+      datasets: [{
+        data: platRows.length ? platRows.map(r => r[1]) : [1],
+        backgroundColor: platRows.length ? platRows.map((_, i) => PLATFORM_COLORS[i % PLATFORM_COLORS.length]) : ["#3a3f5f"],
+        borderColor: "#1f2440",
+        borderWidth: 2
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { position: "right", labels: { boxWidth: 12, padding: 10 } },
+        tooltip: platRows.length ? {
+          callbacks: {
+            label: (c) => {
+              const total = platRows.reduce((a, r) => a + r[1], 0);
+              const pctv = total ? Math.round(100 * c.parsed / total) : 0;
+              return ` ${c.label}: ${c.parsed} (${pctv}%)`;
+            }
+          }
+        } : {}
+      }
+    }
+  });
+
+  // Stacked daily players per surface. Stacking (rather than separate lines)
+  // makes it obvious whether a new channel is adding players or just moving
+  // the same ones around.
+  new Chart(platformTrendChart, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: platRows.map((r, i) => ({
+        label: r[0],
+        data: agg.days.map(d => (agg.platformDaily[r[0]] && agg.platformDaily[r[0]][d] ? agg.platformDaily[r[0]][d].size : 0)),
+        backgroundColor: PLATFORM_COLORS[i % PLATFORM_COLORS.length]
+      }))
+    },
+    options: {
+      plugins: { legend: { labels: { boxWidth: 12 } } },
+      scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, ticks: { precision: 0 } } }
+    }
+  });
+
   // --- location panels ---
   const countryRows = Object.entries(agg.countries)
     .map(([k, v]) => [k, v.size]).sort((a, b) => b[1] - a[1]).slice(0, 10);
